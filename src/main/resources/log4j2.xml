@@ -13,6 +13,15 @@
                 pattern="%d{HH:mm:ss.SSS} %highlight{%-5p} [%-15.15thread] %-35.35logger{20} -- %highlight{%m}%n"
             />
         </Console>
+        <RollingFile name="RollingFileAppender" fileName="logs/app.log"
+                     filePattern="logs/app-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10MB"/>
+                <TimeBasedTriggeringPolicy modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
     </Appenders>
 
     <Loggers>
@@ -23,6 +32,9 @@
         <Logger name="org.instancio" level="INFO"/>
         <Logger name="org.apache.http" level="INFO"/>
         <Logger name="io.restassured" level="INFO"/>
+        <Logger name="backend.academy" level="INFO" additivity="false">
+            <AppenderRef ref="RollingFileAppender"/>
+        </Logger>
 
         <Root level="TRACE">
             <AppenderRef ref="STDOUT_PLAIN"/>
