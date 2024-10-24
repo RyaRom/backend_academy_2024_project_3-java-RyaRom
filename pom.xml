@@ -449,6 +449,20 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
 
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>backend.academy.Main</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
+
             <!-- Linters -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
