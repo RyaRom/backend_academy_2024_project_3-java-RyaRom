@@ -87,8 +87,9 @@ public class DefaultAnalyzer implements Analyzer {
     }
 
     private List<String> getFileNames(String path) {
-        try (Stream<Path> files = Files.walk(Path.of(path))) {
-            return files
+        try {
+            return Files.walk(Path.of(path))
+                .filter(Files::isRegularFile)
                 .map(p -> p.getFileName().toString())
                 .collect(Collectors.toList());
         } catch (IOException e) {
