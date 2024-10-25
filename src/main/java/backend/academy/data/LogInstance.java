@@ -1,9 +1,7 @@
 package backend.academy.data;
 
-import lombok.Builder;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.regex.Pattern;
+import lombok.Builder;
 
 @Builder
 public record LogInstance(
@@ -11,7 +9,7 @@ public record LogInstance(
     String remoteUser,
     LocalDateTime timeLocal,
     String request,
-    Integer status,
+    String status,
     Long bodyBitesSent,
     String httpRefer,
     String httpUserAgent

@@ -2,12 +2,15 @@ package backend.academy.data;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.ToString;
 
-@Setter
 @Getter
+@Builder
+@ToString
 public final class LogReport {
     private Long requestCount;
 
@@ -19,13 +22,13 @@ public final class LogReport {
 
     private List<String> fileNames;
 
-    private Map<String, Long> resources;
+    private List<Entry<String, Long>> resources;
 
     private Set<String> uniqueIpAddresses;
 
     private Set<String> uniqueUserAgents;
 
-    private Map<String, Long> responseCodes;
+    private List<Entry<String, Long>> responseCodes;
 
-    private Map<String, Long> requestMethods;
+    private List<Entry<String, Long>> requestMethods;
 }

@@ -5,5 +5,5 @@ import backend.academy.data.LogReport;
 import java.util.stream.Stream;
 
 public interface Analyzer {
-    LogReport analyze(Stream<LogInstance> logs);
+    LogReport analyze(Stream<LogInstance> logs, String path);
 }
