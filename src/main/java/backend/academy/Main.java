@@ -2,6 +2,7 @@ package backend.academy;
 
 import backend.academy.data.Params;
 import com.beust.jcommander.JCommander;
+import java.util.PriorityQueue;
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
 
@@ -14,7 +15,5 @@ public class Main {
             .addObject(params)
             .build()
             .parse(args);
-        log.info(params.toString());
-        System.out.println(params);
     }
 }

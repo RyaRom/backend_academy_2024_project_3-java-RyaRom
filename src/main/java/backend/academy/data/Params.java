@@ -6,7 +6,7 @@ import lombok.ToString;
 
 @ToString
 @Getter
-public class Params {
+public final class Params {
     @Parameter(required = true, names = {"--path", "-p"})
     private String path;
 
@@ -17,5 +17,5 @@ public class Params {
     private String to;
 
     @Parameter(names = {"--format", "-f"})
-    private String format;
+    private String format = "adoc";
 }
