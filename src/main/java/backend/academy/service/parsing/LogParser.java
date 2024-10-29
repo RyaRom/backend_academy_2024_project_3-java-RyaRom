@@ -11,29 +11,30 @@ import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 
 public interface LogParser {
-    DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+    DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder()
         .appendPattern("dd/MMM/yyyy:HH:mm:ss Z")
         .toFormatter();
 
-    String regex = "^(\\S+) - (\\S+) \\[(.+?)] \"(.+?)\" (\\d{3}) (\\d+) \"(.*?)\" \"(.*?)\"";
-    Pattern pattern = Pattern.compile(regex);
+    String REGEX = "^(\\S+) - (\\S+) \\[(.+?)] \"(.+?)\" (\\d{3}) (\\d+) \"(.*?)\" \"(.*?)\"";
+    Pattern PATTERN = Pattern.compile(REGEX);
 
     Stream<LogInstance> parse(Path fileName);
 
     Stream<LogInstance> parseDir(String dirName);
 
     @Nullable
+    @SuppressWarnings("MagicNumber")
     default LogInstance mapFromString(String log) {
         try {
-            if (!log.matches(regex)) {
+            if (!log.matches(REGEX)) {
                 return null;
             }
-            Matcher matcher = pattern.matcher(log);
+            Matcher matcher = PATTERN.matcher(log);
             matcher.find();
             return LogInstance.builder()
                 .remoteAddress(matcher.group(1))
                 .remoteUser(matcher.group(2))
-                .timeLocal(LocalDateTime.parse(matcher.group(3), formatter))
+                .timeLocal(LocalDateTime.parse(matcher.group(3), FORMATTER))
                 .request(matcher.group(4))
                 .status(matcher.group(5))
                 .bodyBitesSent(Long.parseLong(matcher.group(6)))

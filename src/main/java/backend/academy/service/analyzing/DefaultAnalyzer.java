@@ -5,6 +5,7 @@ import backend.academy.data.LogReport;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -17,10 +18,15 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
+@RequiredArgsConstructor
 public class DefaultAnalyzer implements Analyzer {
+    private final LocalDateTime startingDate;
+
+    private final LocalDateTime endDate;
 
     @Override
     public LogReport analyze(Stream<LogInstance> logs, String path) {
@@ -36,23 +42,28 @@ public class DefaultAnalyzer implements Analyzer {
         Set<String> uniqueUserAgents = new HashSet<>();
 
         logs.forEach(line -> {
-            if (isError(line.status())) {
-                error.incrementAndGet();
-            }
-            byteSum.setOpaque(byteSum.longValue() + line.bodyBitesSent());
-            count.incrementAndGet();
+            if (line.timeLocal().isAfter(startingDate)
+                && line.timeLocal().isBefore(endDate)) {
+                if (isError(line.status())) {
+                    error.incrementAndGet();
+                }
+                byteSum.setOpaque(byteSum.longValue() + line.bodyBitesSent());
+                count.incrementAndGet();
 
-            bytes.add(line.bodyBitesSent());
-            String method = getRequestMethod(line.request());
-            String resource = getRequestMethod(line.request());
-            resources.put(resource, resources.getOrDefault(resource, 0L) + 1);
-            requestMethods.put(method, requestMethods.getOrDefault(method, 0L) + 1);
-            responseCodes.put(line.status(), responseCodes.getOrDefault(line.status(), 0L) + 1);
-            uniqueIpAddresses.add(line.remoteAddress());
-            uniqueUserAgents.add(line.httpUserAgent());
+                bytes.add(line.bodyBitesSent());
+                String method = getRequestMethod(line.request());
+                String resource = getRequestPath(line.request());
+                resources.put(resource, resources.getOrDefault(resource, 0L) + 1);
+                requestMethods.put(method, requestMethods.getOrDefault(method, 0L) + 1);
+                responseCodes.put(line.status(), responseCodes.getOrDefault(line.status(), 0L) + 1);
+                uniqueIpAddresses.add(line.remoteAddress());
+                uniqueUserAgents.add(line.httpUserAgent());
+            }
         });
 
         return LogReport.builder()
+            .startingDate(startingDate)
+            .endDate(endDate)
             .requestCount(count.get())
             .fileNames(fileNames)
             .responseCodes(
@@ -98,6 +109,7 @@ public class DefaultAnalyzer implements Analyzer {
         }
     }
 
+    @SuppressWarnings("MagicNumber")
     private long calculate95pBytes(List<Long> bytes) {
         Collections.sort(bytes);
         int index = (int) Math.ceil(0.95 * bytes.size()) - 1;
@@ -109,11 +121,19 @@ public class DefaultAnalyzer implements Analyzer {
     }
 
     private String getRequestMethod(String request) {
-        return request.split(" ")[0];
+        var arr = request.split(" ");
+        if (arr.length < 1) {
+            return "";
+        }
+        return arr[0];
     }
 
-    private String getResourcePath(String request) {
-        return request.split(" ")[1];
+    private String getRequestPath(String request) {
+        var arr = request.split(" ");
+        if (arr.length < 2) {
+            return "";
+        }
+        return arr[1];
     }
 
     private boolean isError(String code) {

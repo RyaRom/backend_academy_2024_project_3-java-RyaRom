@@ -1,11 +1,17 @@
 package backend.academy.service.parsing;
 
+import backend.academy.data.Params;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class ParserFactory {
-    public LogParser getParser(String path) {
+    private final Params params;
+
+    public LogParser getParser() {
+        String path = params.path();
         if (isURL(path)) {
             return new URLLogParser();
         }

@@ -1,7 +1,7 @@
 package backend.academy.data;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import lombok.Builder;
@@ -12,6 +12,11 @@ import lombok.ToString;
 @Builder
 @ToString
 public final class LogReport {
+
+    private LocalDateTime startingDate;
+
+    private LocalDateTime endDate;
+
     private Long requestCount;
 
     private Long averageResponseByteSize;

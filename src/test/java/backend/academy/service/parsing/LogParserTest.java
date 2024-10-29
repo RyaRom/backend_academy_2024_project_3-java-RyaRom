@@ -35,8 +35,8 @@ class LogParserTest {
             parser.mapFromString(
                 "217.168.17.5 - - [17/May/2015:08:05:34 +0000] \"GET /downloads/product_1 HTTP/1.1\" 200 490 \"-\" \"Debian APT-HTTP/1.3 (0.8.10.3)\"")
         ));
-        correct.sort(Comparator.comparing(LogInstance::remoteAddress));
-        logs.sort(Comparator.comparing(LogInstance::remoteAddress));
+        correct.sort(Comparator.comparing(LogInstance::remoteAddress).thenComparing(LogInstance::httpUserAgent));
+        logs.sort(Comparator.comparing(LogInstance::remoteAddress).thenComparing(LogInstance::httpUserAgent));
 
         assertNotNull(logs);
         assertEquals(4, logs.size());
