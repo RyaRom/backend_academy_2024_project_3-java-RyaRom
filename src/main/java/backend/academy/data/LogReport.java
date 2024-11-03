@@ -5,35 +5,32 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
 
-@Getter
 @Builder
-@ToString
-public final class LogReport {
+public record LogReport(
 
-    private LocalDateTime startingDate;
+    LocalDateTime startingDate,
 
-    private LocalDateTime endDate;
+    LocalDateTime endDate,
 
-    private Long requestCount;
+    Long requestCount,
 
-    private Long averageResponseByteSize;
+    Long averageResponseByteSize,
 
-    private Long response95pByteSize;
+    Long response95pByteSize,
 
-    private Double errorRate;
+    Double errorRate,
 
-    private List<String> fileNames;
+    List<String> fileNames,
 
-    private List<Entry<String, Long>> resources;
+    List<Entry<String, Long>> resources,
 
-    private Set<String> uniqueIpAddresses;
+    List<Entry<String, Long>> uniqueIpAddresses,
 
-    private Set<String> uniqueUserAgents;
+    List<Entry<String, Long>> uniqueUserAgents,
 
-    private List<Entry<String, Long>> responseCodes;
+    List<Entry<String, Long>> responseCodes,
 
-    private List<Entry<String, Long>> requestMethods;
+    List<Entry<String, Long>> requestMethods
+) {
 }

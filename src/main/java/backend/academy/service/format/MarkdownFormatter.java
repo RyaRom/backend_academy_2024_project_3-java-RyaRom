@@ -4,7 +4,7 @@ import backend.academy.data.LogReport;
 
 public class MarkdownFormatter implements Formatter {
     @Override
-    public void saveAndPrintReport(LogReport report) {
-
+    public String getTable(LogReport report) {
+        return "";
     }
 }

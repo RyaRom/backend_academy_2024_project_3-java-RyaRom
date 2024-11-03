@@ -10,11 +10,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,8 +36,8 @@ public class DefaultAnalyzer implements Analyzer {
         Map<String, Long> resources = new HashMap<>();
         Map<String, Long> responseCodes = new HashMap<>();
         Map<String, Long> requestMethods = new HashMap<>();
-        Set<String> uniqueIpAddresses = new HashSet<>();
-        Set<String> uniqueUserAgents = new HashSet<>();
+        Map<String, Long> uniqueIpAddresses = new HashMap<>();
+        Map<String, Long> uniqueUserAgents = new HashMap<>();
 
         logs.forEach(line -> {
             if (line.timeLocal().isAfter(startingDate)
@@ -53,11 +51,16 @@ public class DefaultAnalyzer implements Analyzer {
                 bytes.add(line.bodyBitesSent());
                 String method = getRequestMethod(line.request());
                 String resource = getRequestPath(line.request());
-                resources.put(resource, resources.getOrDefault(resource, 0L) + 1);
-                requestMethods.put(method, requestMethods.getOrDefault(method, 0L) + 1);
-                responseCodes.put(line.status(), responseCodes.getOrDefault(line.status(), 0L) + 1);
-                uniqueIpAddresses.add(line.remoteAddress());
-                uniqueUserAgents.add(line.httpUserAgent());
+                resources.put(resource,
+                    resources.getOrDefault(resource, 0L) + 1);
+                requestMethods.put(method,
+                    requestMethods.getOrDefault(method, 0L) + 1);
+                responseCodes.put(line.status(),
+                    responseCodes.getOrDefault(line.status(), 0L) + 1);
+                uniqueIpAddresses.put(line.remoteAddress(),
+                    uniqueIpAddresses.getOrDefault(line.remoteAddress(), 0L) + 1);
+                uniqueUserAgents.put(line.httpUserAgent(),
+                    uniqueUserAgents.getOrDefault(line.httpUserAgent(), 0L) + 1);
             }
         });
 
@@ -70,14 +73,14 @@ public class DefaultAnalyzer implements Analyzer {
                 responseCodes
                     .entrySet()
                     .stream()
-                    .sorted(Comparator.comparingLong(Entry::getValue))
+                    .sorted(Comparator.comparingLong((Entry<String, Long> entry) -> entry.getValue()).reversed())
                     .toList()
             )
             .resources(
                 resources
                     .entrySet()
                     .stream()
-                    .sorted(Comparator.comparingLong(Entry::getValue))
+                    .sorted(Comparator.comparingLong((Entry<String, Long> entry) -> entry.getValue()).reversed())
                     .toList()
             )
             .errorRate(
@@ -87,12 +90,24 @@ public class DefaultAnalyzer implements Analyzer {
                 requestMethods
                     .entrySet()
                     .stream()
-                    .sorted(Comparator.comparingLong(Entry::getValue))
+                    .sorted(Comparator.comparingLong((Entry<String, Long> entry) -> entry.getValue()).reversed())
                     .toList()
             )
             .averageResponseByteSize(byteSum.longValue() / count.longValue())
-            .uniqueUserAgents(uniqueUserAgents)
-            .uniqueIpAddresses(uniqueIpAddresses)
+            .uniqueUserAgents(
+                uniqueUserAgents
+                    .entrySet()
+                    .stream()
+                    .sorted(Comparator.comparingLong((Entry<String, Long> entry) -> entry.getValue()).reversed())
+                    .toList()
+            )
+            .uniqueIpAddresses(
+                uniqueIpAddresses
+                    .entrySet()
+                    .stream()
+                    .sorted(Comparator.comparingLong((Entry<String, Long> entry) -> entry.getValue()).reversed())
+                    .toList()
+            )
             .response95pByteSize(calculate95pBytes(bytes))
             .build();
     }
@@ -137,6 +152,6 @@ public class DefaultAnalyzer implements Analyzer {
     }
 
     private boolean isError(String code) {
-        return code.startsWith("4");
+        return code.startsWith("4") || code.startsWith("5");
     }
 }
