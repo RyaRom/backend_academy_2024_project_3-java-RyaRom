@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Getter;
@@ -28,6 +29,8 @@ public class DefaultAnalyzer implements Analyzer {
 
     private final LocalDateTime endDate;
 
+    private final Predicate<LogInstance> filter;
+
     private final Comparator<Entry<String, Long>> comparatorForPairs =
         Comparator.comparingLong(
             (Entry<String, Long> entry) -> entry.getValue()
@@ -36,7 +39,8 @@ public class DefaultAnalyzer implements Analyzer {
     private LogAnalysisResult processLogs(Stream<LogInstance> logs) {
         LogAnalysisResult result = new LogAnalysisResult();
         logs.parallel().forEach(line -> {
-            if (line.timeLocal().isAfter(startingDate)
+            if (filter.test(line)
+                && line.timeLocal().isAfter(startingDate)
                 && line.timeLocal().isBefore(endDate)) {
                 if (isError(line.status())) {
                     result.error.incrementAndGet();
