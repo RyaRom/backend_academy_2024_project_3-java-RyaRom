@@ -93,7 +93,7 @@ public class DefaultAnalyzer implements Analyzer {
                     .sorted(Comparator.comparingLong((Entry<String, Long> entry) -> entry.getValue()).reversed())
                     .toList()
             )
-            .averageResponseByteSize(byteSum.longValue() / count.longValue())
+            .averageResponseByteSize(count.longValue() == 0L ? 0 : byteSum.longValue() / count.longValue())
             .uniqueUserAgents(
                 uniqueUserAgents
                     .entrySet()

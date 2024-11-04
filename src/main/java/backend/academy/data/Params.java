@@ -18,4 +18,10 @@ public final class Params {
 
     @Parameter(names = {"--format", "-f"})
     private String format = "adoc";
+
+    /**
+     * A path where report doc will be saved
+     */
+    @Parameter(names = {"--out", "-o"})
+    private String out;
 }

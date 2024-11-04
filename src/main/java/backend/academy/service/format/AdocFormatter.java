@@ -1,12 +1,14 @@
 package backend.academy.service.format;
 
 import backend.academy.data.LogReport;
-import java.util.List;
-import java.util.Map.Entry;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
+@RequiredArgsConstructor
 @Log4j2
 public class AdocFormatter implements Formatter {
+    private final String out;
+
     private static final String COLUMN_TEMPLATE = """
         |%s|%s
 
@@ -97,39 +99,12 @@ public class AdocFormatter implements Formatter {
             """;
 
     @Override
-    public String getTable(LogReport report) {
-        String table = formTable(report);
+    public String getAndSaveTable(LogReport report) {
+        String table = formTable(report, MAIN_TABLE_TEMPLATE, COLUMN_TEMPLATE);
         log.info("Report processed:\n {}", table);
-        return table;
-    }
-
-    private String formTable(LogReport report) {
-        return MAIN_TABLE_TEMPLATE
-            .replace("{fileNames}", String.join(" ", report.fileNames()))
-            .replace("{startingDate}", report.startingDate().toString())
-            .replace("{endDate}", report.endDate().toString())
-            .replace("{requestCount}", String.valueOf(report.requestCount()))
-            .replace("{averageResponseByteSize}", String.valueOf(report.averageResponseByteSize()))
-            .replace("{response95pByteSize}", String.valueOf(report.response95pByteSize()))
-            .replace("{errorRate}", String.valueOf(report.errorRate()))
-            .replace("{uniqueIpAddresses}", formColumnsFromPairs(report.uniqueIpAddresses()))
-            .replace("{uniqueUserAgents}", formColumnsFromPairs(report.uniqueUserAgents()))
-            .replace("{resources}", formColumnsFromPairs(report.resources()))
-            .replace("{responseCodes}", formColumnsFromPairs(report.responseCodes()))
-            .replace("{requestMethods}", formColumnsFromPairs(report.requestMethods()));
-    }
-
-    private String formColumnsFromPairs(List<Entry<String, Long>> pairs) {
-        StringBuilder result = new StringBuilder();
-        int size = 0;
-        for (var pair : pairs) {
-            size++;
-            if (size > 50) {
-                result.append(COLUMN_TEMPLATE.formatted("...", "..."));
-                break;
-            }
-            result.append(COLUMN_TEMPLATE.formatted(pair.getKey(), pair.getValue()));
+        if (saveFile(out, "log_report.adoc", table)) {
+            log.error("Error writing report to file");
         }
-        return result.toString();
+        return table;
     }
 }

@@ -10,9 +10,9 @@ public class FormatterFactory {
     public Formatter getFormatter() {
         String format = params.format();
         if (format.equalsIgnoreCase("adoc")) {
-            return new AdocFormatter();
+            return new AdocFormatter(params.out());
         } else if (format.equalsIgnoreCase("markdown")) {
-            return new MarkdownFormatter();
+            return new MarkdownFormatter(params.out());
         }
         throw new IllegalArgumentException("Unknown format: " + format);
     }

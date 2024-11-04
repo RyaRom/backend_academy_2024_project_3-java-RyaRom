@@ -9,18 +9,16 @@ import backend.academy.service.format.FormatterFactory;
 import backend.academy.service.parsing.LogParser;
 import backend.academy.service.parsing.ParserFactory;
 import com.beust.jcommander.JCommander;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import static java.time.LocalDateTime.MAX;
 import static java.time.LocalDateTime.MIN;
 
 @RequiredArgsConstructor
 public final class MainService {
-    public final static BufferedReader CONSOLE_READER = new BufferedReader(new InputStreamReader(System.in));
 
     public final static PrintStream CONSOLE_WRITER = System.out;
 
@@ -44,7 +42,7 @@ public final class MainService {
 
         var parsed = logParser.parseDir(params.path());
         LogReport report = analyzer.analyze(parsed, params.path());
-        String table = formatter.getTable(report);
+        String table = formatter.getAndSaveTable(report);
 
         CONSOLE_WRITER.println(table);
         CONSOLE_WRITER.flush();
