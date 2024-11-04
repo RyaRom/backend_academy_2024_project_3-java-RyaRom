@@ -3,10 +3,10 @@ package backend.academy.data;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 import lombok.Builder;
 
 @Builder
+@SuppressWarnings("RecordComponentNumber")
 public record LogReport(
 
     LocalDateTime startingDate,

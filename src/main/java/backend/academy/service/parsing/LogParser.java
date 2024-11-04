@@ -1,7 +1,6 @@
 package backend.academy.service.parsing;
 
 import backend.academy.data.LogInstance;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;

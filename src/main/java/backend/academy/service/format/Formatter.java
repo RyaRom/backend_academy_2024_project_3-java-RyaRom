@@ -38,6 +38,7 @@ public interface Formatter {
             .replace("{requestMethods}", formColumnsFromPairs(report.requestMethods(), columnTemplate));
     }
 
+    @SuppressWarnings("MultipleStringLiterals")
     default String formColumnsFromPairs(List<Map.Entry<String, Long>> pairs, String columnTemplate) {
         StringBuilder result = new StringBuilder();
         int size = 0;
