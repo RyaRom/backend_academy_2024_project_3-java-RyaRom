@@ -10,8 +10,22 @@ import java.util.Map;
 public interface Formatter {
     Integer TABLE_LIMIT = 50;
 
+    /**
+     * Returns the table as a string and saves it to a file
+     *
+     * @param report Info about log file
+     * @return Table as a string
+     */
     String getAndSaveTable(LogReport report);
 
+    /**
+     * Forms table from LogReport
+     *
+     * @param report         Info about log file
+     * @param tableTemplate  Template for a table depending on a format of table
+     * @param columnTemplate Template for a column depending on a format of table
+     * @return Table as a string
+     */
     default String formTable(LogReport report, String tableTemplate, String columnTemplate) {
         String startingDate = String.valueOf(report.startingDate());
         String endDate = String.valueOf(report.endDate());
@@ -38,6 +52,13 @@ public interface Formatter {
             .replace("{requestMethods}", formColumnsFromPairs(report.requestMethods(), columnTemplate));
     }
 
+    /**
+     * Forms columns from pairs, limiting the number of rows to TABLE_LIMIT
+     *
+     * @param pairs          List of already sorted pairs, where key is the first column and value is the second
+     * @param columnTemplate Template for a column depending on a format of table
+     * @return String with formed column
+     */
     @SuppressWarnings("MultipleStringLiterals")
     default String formColumnsFromPairs(List<Map.Entry<String, Long>> pairs, String columnTemplate) {
         StringBuilder result = new StringBuilder();

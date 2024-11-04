@@ -24,4 +24,16 @@ public final class Params {
      */
     @Parameter(names = {"--out", "-o"})
     private String out;
+
+    /**
+     * A field to filter by
+     */
+    @Parameter(names = {"--filter-field"})
+    private String filterField;
+
+    /**
+     * A value to filter by
+     */
+    @Parameter(names = {"--filter-value"})
+    private String filterValue;
 }

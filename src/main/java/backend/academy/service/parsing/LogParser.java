@@ -17,8 +17,20 @@ public interface LogParser {
     String REGEX = "^(\\S+) - (\\S+) \\[(.+?)] \"(.+?)\" (\\d{3}) (\\d+) \"(.*?)\" \"(.*?)\"";
     Pattern PATTERN = Pattern.compile(REGEX);
 
+    /**
+     * Parses a log file and returns a stream of LogInstance objects lazily loaded from the file.
+     *
+     * @param fileName The name of the log file to parse
+     * @return A stream of LogInstance objects
+     */
     Stream<LogInstance> parse(String fileName);
 
+    /**
+     * Parses a log line into a LogInstance object.
+     *
+     * @param log The log line to parse
+     * @return The parsed LogInstance object, or null if the line is invalid
+     */
     @Nullable
     @SuppressWarnings("MagicNumber")
     default LogInstance mapFromString(String log) {
