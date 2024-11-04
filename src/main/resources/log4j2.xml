@@ -35,6 +35,9 @@
         <Logger name="backend.academy" level="INFO" additivity="false">
             <AppenderRef ref="RollingFileAppender"/>
         </Logger>
+        <Logger name="backend.academy.service" level="ERROR" additivity="false">
+            <AppenderRef ref="RollingFileAppender"/>
+        </Logger>
 
         <Root level="TRACE">
             <AppenderRef ref="STDOUT_PLAIN"/>

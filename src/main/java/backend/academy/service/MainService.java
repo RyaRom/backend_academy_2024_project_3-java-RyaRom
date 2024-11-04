@@ -12,7 +12,6 @@ import com.beust.jcommander.JCommander;
 import java.io.PrintStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import static java.time.LocalDateTime.MAX;
 import static java.time.LocalDateTime.MIN;
@@ -40,7 +39,7 @@ public final class MainService {
             params.to() == null ? MAX : LocalDate.parse(params.to(), FORMATTER).atStartOfDay()
         );
 
-        var parsed = logParser.parseDir(params.path());
+        var parsed = logParser.parse(params.path());
         LogReport report = analyzer.analyze(parsed, params.path());
         String table = formatter.getAndSaveTable(report);
 

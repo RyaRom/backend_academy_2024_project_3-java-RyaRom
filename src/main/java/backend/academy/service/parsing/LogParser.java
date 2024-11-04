@@ -18,9 +18,7 @@ public interface LogParser {
     String REGEX = "^(\\S+) - (\\S+) \\[(.+?)] \"(.+?)\" (\\d{3}) (\\d+) \"(.*?)\" \"(.*?)\"";
     Pattern PATTERN = Pattern.compile(REGEX);
 
-    Stream<LogInstance> parse(Path fileName);
-
-    Stream<LogInstance> parseDir(String dirName);
+    Stream<LogInstance> parse(String fileName);
 
     @Nullable
     @SuppressWarnings("MagicNumber")

@@ -4,7 +4,7 @@ import backend.academy.data.LogInstance;
 import backend.academy.data.LogReport;
 import backend.academy.service.parsing.LocalFileLogParser;
 import backend.academy.service.parsing.LogParser;
-import java.nio.file.Path;
+import backend.academy.service.parsing.URLLogParser;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
 import org.instancio.Instancio;
@@ -33,7 +33,8 @@ class DefaultAnalyzerTest {
 
     @Test
     void analyzeBigLogFile() {
-        var logs = parser.parse(Path.of("src/test/resources/testLogs"));
+        var logs = new URLLogParser().parse(
+            "https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/nginx_logs/nginx_logs");
         LogReport report = analyzer.analyze(logs, "src/test/resources/testLogs");
 
         assertNotNull(report);
@@ -48,7 +49,7 @@ class DefaultAnalyzerTest {
 
     @Test
     void analyzeSmallLogFile() {
-        var logs = parser.parseDir("src/test/resources/logs1");
+        var logs = parser.parse("src/test/resources/logs1");
         LogReport report = analyzer.analyze(logs, "src/test/resources/logs1");
         System.out.println(report);
         assertNotNull(report);
@@ -67,7 +68,7 @@ class DefaultAnalyzerTest {
             LocalDateTime.of(2015, 5, 18, 0, 0, 0),
             LocalDateTime.of(2015, 5, 20, 0, 0, 0)
         );
-        var logs = parser.parseDir("src/test/resources/datedLogs");
+        var logs = parser.parse("src/test/resources/datedLogs");
         LogReport report = analyzer.analyze(logs, "src/test/resources/logs1");
         System.out.println(report);
         assertNotNull(report);

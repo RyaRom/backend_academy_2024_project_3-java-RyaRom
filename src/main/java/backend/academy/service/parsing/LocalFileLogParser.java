@@ -11,10 +11,25 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class LocalFileLogParser implements LogParser {
     @Override
-    public Stream<LogInstance> parse(Path fileName) {
+    public Stream<LogInstance> parse(String fileName) {
+        Path dir = Path.of(fileName);
+        if (Files.isRegularFile(dir)) {
+            return parseFile(fileName);
+        }
+        try {
+            return Files.walk(dir)
+                .filter(Files::isRegularFile)
+                .flatMap(path -> parseFile(path.toString()));
+        } catch (IOException e) {
+            log.error("Error while reading dir {}", fileName, e);
+            return Stream.empty();
+        }
+    }
+
+    private Stream<LogInstance> parseFile(String fileName) {
         return Stream.of(fileName).flatMap(path -> {
             try {
-                return Files.lines(path)
+                return Files.lines(Path.of(path))
                     .map(this::mapFromString)
                     .filter(Objects::nonNull);
             } catch (IOException e) {
@@ -22,21 +37,5 @@ public class LocalFileLogParser implements LogParser {
                 return Stream.empty();
             }
         });
-    }
-
-    @Override
-    public Stream<LogInstance> parseDir(String dirName) {
-        Path dir = Path.of(dirName);
-        if (Files.isRegularFile(dir)) {
-            return parse(dir);
-        }
-        try {
-            return Files.walk(dir)
-                .filter(Files::isRegularFile)
-                .flatMap(this::parse);
-        } catch (IOException e) {
-            log.error("Error while reading dir {}", dirName, e);
-            return Stream.empty();
-        }
     }
 }

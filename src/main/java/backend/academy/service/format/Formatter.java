@@ -3,6 +3,7 @@ package backend.academy.service.format;
 import backend.academy.data.LogReport;
 import java.io.File;
 import java.io.FileWriter;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -12,14 +13,24 @@ public interface Formatter {
     String getAndSaveTable(LogReport report);
 
     default String formTable(LogReport report, String tableTemplate, String columnTemplate) {
+        String startingDate = String.valueOf(report.startingDate());
+        String endDate = String.valueOf(report.endDate());
+        if (startingDate.equals(String.valueOf(LocalDateTime.MIN))) {
+            startingDate = "-";
+        }
+        if (endDate.equals(String.valueOf(LocalDateTime.MAX))) {
+            endDate = "-";
+        }
+        String errorRate = String.format("%.2f", report.errorRate() * 100);
+
         return tableTemplate
-            .replace("{fileNames}", String.join(" ", report.fileNames()))
-            .replace("{startingDate}", report.startingDate().toString())
-            .replace("{endDate}", report.endDate().toString())
+            .replace("{fileNames}", String.join(", ", report.fileNames()))
+            .replace("{startingDate}", startingDate)
+            .replace("{endDate}", endDate)
             .replace("{requestCount}", String.valueOf(report.requestCount()))
             .replace("{averageResponseByteSize}", String.valueOf(report.averageResponseByteSize()))
             .replace("{response95pByteSize}", String.valueOf(report.response95pByteSize()))
-            .replace("{errorRate}", String.valueOf(report.errorRate()))
+            .replace("{errorRate}", errorRate)
             .replace("{uniqueIpAddresses}", formColumnsFromPairs(report.uniqueIpAddresses(), columnTemplate))
             .replace("{uniqueUserAgents}", formColumnsFromPairs(report.uniqueUserAgents(), columnTemplate))
             .replace("{resources}", formColumnsFromPairs(report.resources(), columnTemplate))
@@ -47,7 +58,7 @@ public interface Formatter {
             pathDir.mkdirs();
         }
         File file = new File(dir + "/" + fileName);
-        try(FileWriter writer = new FileWriter(file)) {
+        try (FileWriter writer = new FileWriter(file)) {
             writer.write(content);
         } catch (Exception e) {
             return true;

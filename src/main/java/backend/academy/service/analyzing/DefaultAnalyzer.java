@@ -3,6 +3,7 @@ package backend.academy.service.analyzing;
 import backend.academy.data.LogInstance;
 import backend.academy.data.LogReport;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -28,7 +29,12 @@ public class DefaultAnalyzer implements Analyzer {
 
     @Override
     public LogReport analyze(Stream<LogInstance> logs, String path) {
-        var fileNames = getFileNames(path);
+        List<String> fileNames;
+        if (isURL(path)) {
+            fileNames = List.of(path);
+        } else {
+            fileNames = getFileNames(path);
+        }
         AtomicLong count = new AtomicLong();
         AtomicLong error = new AtomicLong();
         AtomicLong byteSum = new AtomicLong();
@@ -149,6 +155,15 @@ public class DefaultAnalyzer implements Analyzer {
             return "";
         }
         return arr[1];
+    }
+
+    private boolean isURL(String path) {
+        try {
+            new URI(path).toURL();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private boolean isError(String code) {
