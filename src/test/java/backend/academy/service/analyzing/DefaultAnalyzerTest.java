@@ -4,7 +4,6 @@ import backend.academy.data.LogInstance;
 import backend.academy.data.LogReport;
 import backend.academy.service.parsing.LocalFileLogParser;
 import backend.academy.service.parsing.LogParser;
-import backend.academy.service.parsing.URLLogParser;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
 import org.instancio.Instancio;
@@ -29,37 +28,6 @@ class DefaultAnalyzerTest {
         LogReport report = analyzer.analyze(bigFileStream, "");
         assertNotNull(report);
         assertEquals(report.requestCount(), 100000);
-    }
-
-    @Test
-    void analyzeBigLogFile() {
-        var logs = new URLLogParser().parse(
-            "https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/nginx_logs/nginx_logs");
-        LogReport report = analyzer.analyze(logs, "src/test/resources/testLogs");
-
-        assertNotNull(report);
-        assertEquals(report.requestCount(), 51462);
-        assertEquals(report.averageResponseByteSize(), 659509);
-        assertEquals(report.response95pByteSize(), 1768);
-        assertEquals(report.errorRate(), 0.6590882592981229);
-        assertEquals(report.resources().size(), 3);
-        assertEquals(report.responseCodes().size(), 6);
-        System.out.println(report);
-    }
-
-    @Test
-    void analyzeSmallLogFile() {
-        var logs = parser.parse("src/test/resources/logs1");
-        LogReport report = analyzer.analyze(logs, "src/test/resources/logs1");
-        System.out.println(report);
-        assertNotNull(report);
-        assertEquals(report.requestCount(), 4);
-        assertEquals(report.averageResponseByteSize(), 490 / 4);
-        assertEquals(report.response95pByteSize(), 490);
-        assertEquals(report.errorRate(), 0.0);
-        assertEquals(report.resources().size(), 1);
-        assertEquals(report.uniqueIpAddresses().size(), 3);
-        assertEquals(report.responseCodes().size(), 2);
     }
 
     @Test

@@ -11,7 +11,7 @@ class MainServiceTest {
 
     @ParameterizedTest
     @CsvSource({
-        "src\\test\\resources\\datedLogs, '2010-08-31', '2025-08-31', markdown, src\\main\\resources",
+        "src/test/resources/datedLogs, '2010-08-31', '2025-08-31', adoc, src\\main\\resources",
         "https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/nginx_logs/nginx_logs, '2010-08-31', '2025-08-31', markdown, src\\main\\resources"
     })
     void allParams(String path, String from, String to, String format, String out) {
@@ -23,8 +23,8 @@ class MainServiceTest {
 
     @ParameterizedTest
     @CsvSource({
-        "src\\test\\resources\\datedLogs, markdown, src\\main\\resources",
-        "src\\test\\resources\\logs1, markdown, src\\main\\resources"
+        "src/test/resources/datedLogs, markdown, src\\main\\resources",
+        "src/test/resources/logs1, adoc, src\\main\\resources"
     })
     void noDate(String path, String format, String out) {
         String[] args = new String[] {"-p", path, "-f", format, "-o", out};
