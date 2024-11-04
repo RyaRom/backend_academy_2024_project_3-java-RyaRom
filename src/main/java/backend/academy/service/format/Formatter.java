@@ -3,6 +3,7 @@ package backend.academy.service.format;
 import backend.academy.data.LogReport;
 import java.io.File;
 import java.io.FileWriter;
+import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +84,7 @@ public interface Formatter {
             pathDir.mkdirs();
         }
         File file = new File(dir + "/" + fileName);
-        try (FileWriter writer = new FileWriter(file)) {
+        try (FileWriter writer = new FileWriter(file, Charset.defaultCharset())) {
             writer.write(content);
         } catch (Exception e) {
             return true;
