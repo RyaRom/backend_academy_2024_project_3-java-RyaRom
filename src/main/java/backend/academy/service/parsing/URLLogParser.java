@@ -19,6 +19,7 @@ public class URLLogParser implements LogParser {
             BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
 
             return reader.lines()
+                .parallel()
                 .map(this::mapFromString)
                 .filter(Objects::nonNull)
                 .onClose(() -> {

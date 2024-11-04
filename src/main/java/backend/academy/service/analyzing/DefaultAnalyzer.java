@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,14 +40,14 @@ public class DefaultAnalyzer implements Analyzer {
         AtomicLong count = new AtomicLong();
         AtomicLong error = new AtomicLong();
         AtomicLong byteSum = new AtomicLong();
-        List<Long> bytes = new ArrayList<>();
-        Map<String, Long> resources = new HashMap<>();
-        Map<String, Long> responseCodes = new HashMap<>();
-        Map<String, Long> requestMethods = new HashMap<>();
-        Map<String, Long> uniqueIpAddresses = new HashMap<>();
-        Map<String, Long> uniqueUserAgents = new HashMap<>();
+        List<Long> bytes = new CopyOnWriteArrayList<>();
+        Map<String, Long> resources = new ConcurrentHashMap<>();
+        Map<String, Long> responseCodes = new ConcurrentHashMap<>();
+        Map<String, Long> requestMethods = new ConcurrentHashMap<>();
+        Map<String, Long> uniqueIpAddresses = new ConcurrentHashMap<>();
+        Map<String, Long> uniqueUserAgents = new ConcurrentHashMap<>();
 
-        logs.forEach(line -> {
+        logs.parallel().forEach(line -> {
             if (line.timeLocal().isAfter(startingDate)
                 && line.timeLocal().isBefore(endDate)) {
                 if (isError(line.status())) {
@@ -57,16 +59,11 @@ public class DefaultAnalyzer implements Analyzer {
                 bytes.add(line.bodyBitesSent());
                 String method = getRequestMethod(line.request());
                 String resource = getRequestPath(line.request());
-                resources.put(resource,
-                    resources.getOrDefault(resource, 0L) + 1);
-                requestMethods.put(method,
-                    requestMethods.getOrDefault(method, 0L) + 1);
-                responseCodes.put(line.status(),
-                    responseCodes.getOrDefault(line.status(), 0L) + 1);
-                uniqueIpAddresses.put(line.remoteAddress(),
-                    uniqueIpAddresses.getOrDefault(line.remoteAddress(), 0L) + 1);
-                uniqueUserAgents.put(line.httpUserAgent(),
-                    uniqueUserAgents.getOrDefault(line.httpUserAgent(), 0L) + 1);
+                resources.compute(resource, (k, v) -> (v == null) ? 1L : v + 1);
+                requestMethods.compute(method, (k, v) -> (v == null) ? 1L : v + 1);
+                responseCodes.compute(line.status(), (k, v) -> (v == null) ? 1L : v + 1);
+                uniqueIpAddresses.compute(line.remoteAddress(), (k, v) -> (v == null) ? 1L : v + 1);
+                uniqueUserAgents.compute(line.httpUserAgent(), (k, v) -> (v == null) ? 1L : v + 1);
             }
         });
 

@@ -18,6 +18,7 @@ public class LocalFileLogParser implements LogParser {
         }
         try {
             return Files.walk(dir)
+                .parallel()
                 .filter(Files::isRegularFile)
                 .flatMap(path -> parseFile(path.toString()));
         } catch (IOException e) {
@@ -30,6 +31,7 @@ public class LocalFileLogParser implements LogParser {
         return Stream.of(fileName).flatMap(path -> {
             try {
                 return Files.lines(Path.of(path))
+                    .parallel()
                     .map(this::mapFromString)
                     .filter(Objects::nonNull);
             } catch (IOException e) {
