@@ -17,6 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -27,6 +28,85 @@ public class DefaultAnalyzer implements Analyzer {
 
     private final LocalDateTime endDate;
 
+    private final Comparator<Entry<String, Long>> comparatorForPairs =
+        Comparator.comparingLong(
+            (Entry<String, Long> entry) -> entry.getValue()
+        ).reversed();
+
+    private LogAnalysisResult processLogs(Stream<LogInstance> logs) {
+        LogAnalysisResult result = new LogAnalysisResult();
+        logs.parallel().forEach(line -> {
+            if (line.timeLocal().isAfter(startingDate)
+                && line.timeLocal().isBefore(endDate)) {
+                if (isError(line.status())) {
+                    result.error.incrementAndGet();
+                }
+                result.byteSum.setOpaque(result.byteSum.longValue() + line.bodyBitesSent());
+                result.count.incrementAndGet();
+
+                result.bytes.add(line.bodyBitesSent());
+                String method = getRequestMethod(line.request());
+                String resource = getRequestPath(line.request());
+                result.resources.compute(resource, (k, v) -> (v == null) ? 1L : v + 1);
+                result.requestMethods.compute(method, (k, v) -> (v == null) ? 1L : v + 1);
+                result.responseCodes.compute(line.status(), (k, v) -> (v == null) ? 1L : v + 1);
+                result.uniqueIpAddresses.compute(line.remoteAddress(), (k, v) -> (v == null) ? 1L : v + 1);
+                result.uniqueUserAgents.compute(line.httpUserAgent(), (k, v) -> (v == null) ? 1L : v + 1);
+            }
+        });
+        return result;
+    }
+
+    private LogReport buildReport(LogAnalysisResult result, List<String> fileNames) {
+        return LogReport.builder()
+            .startingDate(startingDate)
+            .endDate(endDate)
+            .requestCount(result.count.get())
+            .fileNames(fileNames)
+            .responseCodes(
+                result.responseCodes
+                    .entrySet()
+                    .stream()
+                    .sorted(comparatorForPairs)
+                    .toList()
+            )
+            .resources(
+                result.resources
+                    .entrySet()
+                    .stream()
+                    .sorted(comparatorForPairs)
+                    .toList()
+            )
+            .errorRate(
+                1.0 * result.error.get() / result.count.get()
+            )
+            .requestMethods(
+                result.requestMethods
+                    .entrySet()
+                    .stream()
+                    .sorted(comparatorForPairs)
+                    .toList()
+            )
+            .averageResponseByteSize(
+                result.count.longValue() == 0L ? 0 : result.byteSum.longValue() / result.count.longValue())
+            .uniqueUserAgents(
+                result.uniqueUserAgents
+                    .entrySet()
+                    .stream()
+                    .sorted(comparatorForPairs)
+                    .toList()
+            )
+            .uniqueIpAddresses(
+                result.uniqueIpAddresses
+                    .entrySet()
+                    .stream()
+                    .sorted(comparatorForPairs)
+                    .toList()
+            )
+            .response95pByteSize(calculate95pBytes(result.bytes))
+            .build();
+    }
+
     @Override
     public LogReport analyze(Stream<LogInstance> logs, String path) {
         List<String> fileNames;
@@ -35,82 +115,9 @@ public class DefaultAnalyzer implements Analyzer {
         } else {
             fileNames = getFileNames(path);
         }
-        AtomicLong count = new AtomicLong();
-        AtomicLong error = new AtomicLong();
-        AtomicLong byteSum = new AtomicLong();
-        List<Long> bytes = new CopyOnWriteArrayList<>();
-        Map<String, Long> resources = new ConcurrentHashMap<>();
-        Map<String, Long> responseCodes = new ConcurrentHashMap<>();
-        Map<String, Long> requestMethods = new ConcurrentHashMap<>();
-        Map<String, Long> uniqueIpAddresses = new ConcurrentHashMap<>();
-        Map<String, Long> uniqueUserAgents = new ConcurrentHashMap<>();
 
-        logs.parallel().forEach(line -> {
-            if (line.timeLocal().isAfter(startingDate)
-                && line.timeLocal().isBefore(endDate)) {
-                if (isError(line.status())) {
-                    error.incrementAndGet();
-                }
-                byteSum.setOpaque(byteSum.longValue() + line.bodyBitesSent());
-                count.incrementAndGet();
-
-                bytes.add(line.bodyBitesSent());
-                String method = getRequestMethod(line.request());
-                String resource = getRequestPath(line.request());
-                resources.compute(resource, (k, v) -> (v == null) ? 1L : v + 1);
-                requestMethods.compute(method, (k, v) -> (v == null) ? 1L : v + 1);
-                responseCodes.compute(line.status(), (k, v) -> (v == null) ? 1L : v + 1);
-                uniqueIpAddresses.compute(line.remoteAddress(), (k, v) -> (v == null) ? 1L : v + 1);
-                uniqueUserAgents.compute(line.httpUserAgent(), (k, v) -> (v == null) ? 1L : v + 1);
-            }
-        });
-
-        return LogReport.builder()
-            .startingDate(startingDate)
-            .endDate(endDate)
-            .requestCount(count.get())
-            .fileNames(fileNames)
-            .responseCodes(
-                responseCodes
-                    .entrySet()
-                    .stream()
-                    .sorted(Comparator.comparingLong((Entry<String, Long> entry) -> entry.getValue()).reversed())
-                    .toList()
-            )
-            .resources(
-                resources
-                    .entrySet()
-                    .stream()
-                    .sorted(Comparator.comparingLong((Entry<String, Long> entry) -> entry.getValue()).reversed())
-                    .toList()
-            )
-            .errorRate(
-                1.0 * error.get() / count.get()
-            )
-            .requestMethods(
-                requestMethods
-                    .entrySet()
-                    .stream()
-                    .sorted(Comparator.comparingLong((Entry<String, Long> entry) -> entry.getValue()).reversed())
-                    .toList()
-            )
-            .averageResponseByteSize(count.longValue() == 0L ? 0 : byteSum.longValue() / count.longValue())
-            .uniqueUserAgents(
-                uniqueUserAgents
-                    .entrySet()
-                    .stream()
-                    .sorted(Comparator.comparingLong((Entry<String, Long> entry) -> entry.getValue()).reversed())
-                    .toList()
-            )
-            .uniqueIpAddresses(
-                uniqueIpAddresses
-                    .entrySet()
-                    .stream()
-                    .sorted(Comparator.comparingLong((Entry<String, Long> entry) -> entry.getValue()).reversed())
-                    .toList()
-            )
-            .response95pByteSize(calculate95pBytes(bytes))
-            .build();
+        LogAnalysisResult result = processLogs(logs);
+        return buildReport(result, fileNames);
     }
 
     private List<String> getFileNames(String path) {
@@ -163,5 +170,26 @@ public class DefaultAnalyzer implements Analyzer {
 
     private boolean isError(String code) {
         return code.startsWith("4") || code.startsWith("5");
+    }
+
+    @Getter
+    private static final class LogAnalysisResult {
+        private final AtomicLong count = new AtomicLong();
+
+        private final AtomicLong error = new AtomicLong();
+
+        private final AtomicLong byteSum = new AtomicLong();
+
+        private final List<Long> bytes = new CopyOnWriteArrayList<>();
+
+        private final Map<String, Long> resources = new ConcurrentHashMap<>();
+
+        private final Map<String, Long> responseCodes = new ConcurrentHashMap<>();
+
+        private final Map<String, Long> requestMethods = new ConcurrentHashMap<>();
+
+        private final Map<String, Long> uniqueIpAddresses = new ConcurrentHashMap<>();
+
+        private final Map<String, Long> uniqueUserAgents = new ConcurrentHashMap<>();
     }
 }

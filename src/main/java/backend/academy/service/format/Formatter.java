@@ -75,6 +75,9 @@ public interface Formatter {
     }
 
     default boolean saveFile(String dir, String fileName, String content) {
+        if (dir == null || fileName == null || content == null) {
+            return false;
+        }
         File pathDir = new File(dir);
         if (!pathDir.exists()) {
             pathDir.mkdirs();
