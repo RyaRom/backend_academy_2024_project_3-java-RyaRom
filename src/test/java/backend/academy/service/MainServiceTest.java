@@ -13,14 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MainServiceTest {
-    @ParameterizedTest
-    @MethodSource("provideValidArguments")
-    void testValidArguments(String[] args) {
-        MainService mainService = new MainService(args);
-        assertThatCode(mainService::run).doesNotThrowAnyException();
-        assertTrue(Files.exists(Path.of(args[args.length - 1])));
-    }
-
     private static Stream<Arguments> provideValidArguments() {
         return Stream.of(
             Arguments.of((Object) new String[] {
@@ -108,6 +100,14 @@ class MainServiceTest {
                     "-o",
                     "src/main/resources"}
             ));
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideValidArguments")
+    void testValidArguments(String[] args) {
+        MainService mainService = new MainService(args);
+        assertThatCode(mainService::run).doesNotThrowAnyException();
+        assertTrue(Files.exists(Path.of(args[args.length - 1])));
     }
 
     @Test

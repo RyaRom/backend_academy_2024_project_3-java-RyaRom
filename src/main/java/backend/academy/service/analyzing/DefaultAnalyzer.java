@@ -39,26 +39,34 @@ public class DefaultAnalyzer implements Analyzer {
     private LogAnalysisResult processLogs(Stream<LogInstance> logs) {
         LogAnalysisResult result = new LogAnalysisResult();
         logs.parallel().forEach(line -> {
-            if (filter.test(line)
-                && line.timeLocal().isAfter(startingDate)
-                && line.timeLocal().isBefore(endDate)) {
-                if (isError(line.status())) {
-                    result.error.incrementAndGet();
-                }
-                result.byteSum.setOpaque(result.byteSum.longValue() + line.bodyBitesSent());
-                result.count.incrementAndGet();
-
-                result.bytes.add(line.bodyBitesSent());
-                String method = getRequestMethod(line.request());
-                String resource = getRequestPath(line.request());
-                result.resources.compute(resource, (k, v) -> (v == null) ? 1L : v + 1);
-                result.requestMethods.compute(method, (k, v) -> (v == null) ? 1L : v + 1);
-                result.responseCodes.compute(line.status(), (k, v) -> (v == null) ? 1L : v + 1);
-                result.uniqueIpAddresses.compute(line.remoteAddress(), (k, v) -> (v == null) ? 1L : v + 1);
-                result.uniqueUserAgents.compute(line.httpUserAgent(), (k, v) -> (v == null) ? 1L : v + 1);
+            if (logIsInRequirements(line)) {
+                processLogInstance(line, result);
             }
         });
         return result;
+    }
+
+    private void processLogInstance(LogInstance line, LogAnalysisResult result) {
+        if (isError(line.status())) {
+            result.error.incrementAndGet();
+        }
+        result.byteSum.setOpaque(result.byteSum.longValue() + line.bodyBitesSent());
+        result.count.incrementAndGet();
+
+        result.bytes.add(line.bodyBitesSent());
+        String method = getRequestMethod(line.request());
+        String resource = getRequestPath(line.request());
+        result.resources.compute(resource, (k, v) -> (v == null) ? 1L : v + 1);
+        result.requestMethods.compute(method, (k, v) -> (v == null) ? 1L : v + 1);
+        result.responseCodes.compute(line.status(), (k, v) -> (v == null) ? 1L : v + 1);
+        result.uniqueIpAddresses.compute(line.remoteAddress(), (k, v) -> (v == null) ? 1L : v + 1);
+        result.uniqueUserAgents.compute(line.httpUserAgent(), (k, v) -> (v == null) ? 1L : v + 1);
+    }
+
+    private boolean logIsInRequirements(LogInstance line) {
+        return filter.test(line)
+            && line.timeLocal().isAfter(startingDate)
+            && line.timeLocal().isBefore(endDate);
     }
 
     private LogReport buildReport(LogAnalysisResult result, List<String> fileNames) {
@@ -92,7 +100,8 @@ public class DefaultAnalyzer implements Analyzer {
                     .toList()
             )
             .averageResponseByteSize(
-                result.count.longValue() == 0L ? 0 : result.byteSum.longValue() / result.count.longValue())
+                result.count.longValue() == 0L ? 0 : result.byteSum.longValue() / result.count.longValue()
+            )
             .uniqueUserAgents(
                 result.uniqueUserAgents
                     .entrySet()
@@ -129,7 +138,7 @@ public class DefaultAnalyzer implements Analyzer {
             return Files.walk(Path.of(path))
                 .filter(Files::isRegularFile)
                 .map(p -> p.getFileName().toString())
-                .collect(Collectors.toList());
+                .toList();
         } catch (IOException e) {
             log.error("Error reading file names {}", path);
             return List.of("Error reading file names");

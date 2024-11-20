@@ -26,28 +26,28 @@ public class AnalyzerFactory {
         var end = params.to() == null ? MAX : LocalDate.parse(params.to(), FORMATTER_DATE).atStartOfDay();
         if (value == null || field == null) {
             log.warn("Filter value is null. Default analyzer will be used");
-            return new DefaultAnalyzer(start, end, (instance) -> true);
+            return new DefaultAnalyzer(start, end, instance -> true);
         }
         Predicate<LogInstance> filter = switch (field) {
-            case "remote_addr" -> (instance) -> instance.remoteAddress().equals(value);
+            case "remote_addr" -> instance -> instance.remoteAddress().equals(value);
 
-            case "time_local" -> (instance) -> instance.timeLocal().equals(LocalDateTime.parse(value, FORMATTER));
+            case "time_local" -> instance -> instance.timeLocal().equals(LocalDateTime.parse(value, FORMATTER));
 
-            case "remote_user" -> (instance) -> instance.remoteUser().contains(value);
+            case "remote_user" -> instance -> instance.remoteUser().contains(value);
 
-            case "request" -> (instance) -> instance.request().equals(value);
+            case "request" -> instance -> instance.request().equals(value);
 
-            case "method", "resource" -> (instance) -> instance.request().contains(value);
+            case "method", "resource" -> instance -> instance.request().contains(value);
 
-            case "status" -> (instance) -> instance.status().equals(value);
+            case "status" -> instance -> instance.status().equals(value);
 
-            case "body_bytes_sent" -> (instance) -> instance.bodyBitesSent() == Long.parseLong(value);
+            case "body_bytes_sent" -> instance -> instance.bodyBitesSent() == Long.parseLong(value);
 
-            case "http_referer" -> (instance) -> instance.httpRefer().contains(value);
+            case "http_referer" -> instance -> instance.httpRefer().contains(value);
 
-            case "http_user_agent" -> (instance) -> instance.httpUserAgent().contains(value);
+            case "http_user_agent" -> instance -> instance.httpUserAgent().contains(value);
 
-            default -> (instance) -> true;
+            default -> instance -> true;
         };
         return new DefaultAnalyzer(start, end, filter);
     }
