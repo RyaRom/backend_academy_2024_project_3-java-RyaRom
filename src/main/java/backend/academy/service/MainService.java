@@ -46,7 +46,9 @@ public final class MainService {
                     LocalDate localDate = LocalDate.parse(dateTime, FORMATTER);
                     return localDate.atStartOfDay().atOffset(ZoneOffset.UTC);
                 } catch (DateTimeParseException parseException) {
-                    throw new IllegalArgumentException("Unable to parse date: " + dateTime, parseException);
+                    throw new IllegalArgumentException("Unable to parse date: " + dateTime
+                        + "\nDate should be in dd/MMM/yyyy:HH:mm:ss Z or yyyy-MM-dd format. Write --help for details",
+                        parseException);
                 }
             }
         }

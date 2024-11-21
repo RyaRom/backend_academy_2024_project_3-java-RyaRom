@@ -140,7 +140,7 @@ public class DefaultAnalyzer implements Analyzer {
                 result.merge(newRes);
             } catch (UncheckedIOException e) {
                 log.error("Error while parsing file {}", path, e);
-                CONSOLE_WRITER.println("Error with file encoding. Encoding must be " + encoding);
+                CONSOLE_WRITER.println("Error while file reading. Encoding must be " + encoding);
             }
         });
 
