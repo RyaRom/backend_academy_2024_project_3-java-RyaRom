@@ -4,27 +4,24 @@ import backend.academy.data.LogInstance;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
+@RequiredArgsConstructor
 public class LocalFileLogParser implements LogParser {
+    private final GlobParser globParser;
+
     @Override
     public Stream<LogInstance> parse(String fileName) {
-        Path dir = Path.of(fileName);
-        if (Files.isRegularFile(dir)) {
-            return parseFile(fileName);
-        }
-        try {
-            return Files.walk(dir)
-                .parallel()
-                .filter(Files::isRegularFile)
-                .flatMap(path -> parseFile(path.toString()));
-        } catch (IOException e) {
-            log.error("Error while reading dir {}", fileName, e);
-            return Stream.empty();
-        }
+        List<Path> paths = globParser.getNormalPaths(fileName);
+        return paths.stream()
+            .parallel()
+            .filter(Files::isRegularFile)
+            .flatMap(path -> parseFile(path.toString()));
     }
 
     private Stream<LogInstance> parseFile(String fileName) {

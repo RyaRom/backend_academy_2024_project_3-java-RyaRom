@@ -1,9 +1,10 @@
 package backend.academy.service.parsing;
 
 import backend.academy.data.LogInstance;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -12,7 +13,7 @@ import org.jspecify.annotations.Nullable;
 public interface LogParser {
     DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder()
         .appendPattern("dd/MMM/yyyy:HH:mm:ss Z")
-        .toFormatter();
+        .toFormatter(Locale.ENGLISH);
 
     String REGEX = "^(\\S+) - (\\S+) \\[(.+?)] \"(.+?)\" (\\d{3}) (\\d+) \"(.*?)\" \"(.*?)\"";
     Pattern PATTERN = Pattern.compile(REGEX);
@@ -43,7 +44,7 @@ public interface LogParser {
             return LogInstance.builder()
                 .remoteAddress(matcher.group(1))
                 .remoteUser(matcher.group(2))
-                .timeLocal(LocalDateTime.parse(matcher.group(3), FORMATTER))
+                .timeLocal(OffsetDateTime.parse(matcher.group(3), FORMATTER))
                 .request(matcher.group(4))
                 .status(matcher.group(5))
                 .bodyBitesSent(Long.parseLong(matcher.group(6)))

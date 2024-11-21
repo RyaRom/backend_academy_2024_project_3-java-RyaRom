@@ -2,11 +2,11 @@ package backend.academy.service.analyzing;
 
 import backend.academy.data.LogInstance;
 import backend.academy.data.LogReport;
-import java.io.IOException;
+import backend.academy.service.parsing.GlobParser;
 import java.net.URI;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -16,7 +16,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -65,8 +64,8 @@ public class DefaultAnalyzer implements Analyzer {
 
     private boolean logIsInRequirements(LogInstance line) {
         return filter.test(line)
-            && line.timeLocal().isAfter(startingDate)
-            && line.timeLocal().isBefore(endDate);
+            && line.timeLocal().isAfter(OffsetDateTime.from(startingDate))
+            && line.timeLocal().isBefore(OffsetDateTime.from(endDate));
     }
 
     private LogReport buildReport(LogAnalysisResult result, List<String> fileNames) {
@@ -134,15 +133,11 @@ public class DefaultAnalyzer implements Analyzer {
     }
 
     private List<String> getFileNames(String path) {
-        try {
-            return Files.walk(Path.of(path))
-                .filter(Files::isRegularFile)
-                .map(p -> p.getFileName().toString())
-                .toList();
-        } catch (IOException e) {
-            log.error("Error reading file names {}", path);
-            return List.of("Error reading file names");
-        }
+        var paths = new GlobParser().getNormalPaths(path);
+        return paths.stream()
+            .filter(Files::isRegularFile)
+            .map(p -> p.getFileName().toString())
+            .toList();
     }
 
     @SuppressWarnings("MagicNumber")

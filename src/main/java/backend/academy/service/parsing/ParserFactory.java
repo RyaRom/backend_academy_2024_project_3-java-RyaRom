@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class ParserFactory {
+    private final GlobParser globParser = new GlobParser();
     private final Params params;
 
     public LogParser getParser() {
@@ -16,7 +17,7 @@ public class ParserFactory {
             return new URLLogParser();
         }
         if (isLocalFile(path)) {
-            return new LocalFileLogParser();
+            return new LocalFileLogParser(globParser);
         }
         throw new IllegalArgumentException("Unsupported path: " + path);
     }
@@ -31,6 +32,6 @@ public class ParserFactory {
     }
 
     private boolean isLocalFile(String path) {
-        return Files.exists(Paths.get(path));
+        return globParser.isGlob(path) || Files.exists(Paths.get(path));
     }
 }

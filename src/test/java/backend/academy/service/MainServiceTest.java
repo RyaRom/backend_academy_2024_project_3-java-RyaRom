@@ -17,7 +17,7 @@ class MainServiceTest {
         return Stream.of(
             Arguments.of((Object) new String[] {
                 "-p",
-                "src/test/resources/datedLogs",
+                "src/test/resources/datedLogs.txt",
                 "--from",
                 "2010-08-31",
                 "--to",
@@ -39,7 +39,7 @@ class MainServiceTest {
                 "src/main/resources"}),
             Arguments.of((Object) new String[] {
                 "-p",
-                "src/test/resources/datedLogs",
+                "src/test/resources/datedLogs.txt",
                 "-f",
                 "markdown",
                 "-o",
@@ -55,7 +55,7 @@ class MainServiceTest {
             Arguments.of(
                 (Object) new String[] {
                     "-p",
-                    "src/test/resources/datedLogs",
+                    "src/test/resources/datedLogs.txt",
                     "-f",
                     "markdown",
                     "--filter-field",
@@ -66,7 +66,7 @@ class MainServiceTest {
             Arguments.of(
                 (Object) new String[] {
                     "-p",
-                    "src/test/resources/datedLogs",
+                    "src/test/resources/datedLogs.txt",
                     "-f",
                     "markdown",
                     "--filter-value",
@@ -77,7 +77,7 @@ class MainServiceTest {
             Arguments.of(
                 (Object) new String[] {
                     "-p",
-                    "src/test/resources/datedLogs",
+                    "src/test/resources/datedLogs.txt",
                     "-f",
                     "markdown",
                     "--filter-field",
@@ -90,7 +90,7 @@ class MainServiceTest {
             Arguments.of(
                 (Object) new String[] {
                     "-p",
-                    "src/test/resources/datedLogs",
+                    "src/test/resources/datedLogs.txt",
                     "-f",
                     "markdown",
                     "--filter-field",

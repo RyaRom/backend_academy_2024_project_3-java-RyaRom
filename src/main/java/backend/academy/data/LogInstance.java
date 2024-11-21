@@ -1,13 +1,13 @@
 package backend.academy.data;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import lombok.Builder;
 
 @Builder
 public record LogInstance(
     String remoteAddress,
     String remoteUser,
-    LocalDateTime timeLocal,
+    OffsetDateTime timeLocal,
     String request,
     String status,
     Long bodyBitesSent,

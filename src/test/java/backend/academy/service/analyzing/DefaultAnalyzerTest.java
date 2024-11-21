@@ -3,6 +3,7 @@ package backend.academy.service.analyzing;
 import backend.academy.data.LogInstance;
 import backend.academy.data.LogReport;
 import backend.academy.data.Params;
+import backend.academy.service.parsing.GlobParser;
 import backend.academy.service.parsing.LocalFileLogParser;
 import backend.academy.service.parsing.LogParser;
 import java.time.LocalDateTime;
@@ -23,7 +24,7 @@ class DefaultAnalyzerTest {
         .create()
         .stream();
 
-    private final LogParser parser = new LocalFileLogParser();
+    private final LogParser parser = new LocalFileLogParser(new GlobParser());
 
     @Test
     void analyzeBigRandomFile() {
@@ -40,7 +41,7 @@ class DefaultAnalyzerTest {
             LocalDateTime.of(2015, 5, 20, 0, 0, 0),
             (_) -> true
         );
-        var logs = parser.parse("src/test/resources/datedLogs");
+        var logs = parser.parse("src/test/resources/datedLogs.txt");
         LogReport report = analyzer.analyze(logs, "src/test/resources/logs1");
         System.out.println(report);
         assertNotNull(report);
@@ -51,12 +52,12 @@ class DefaultAnalyzerTest {
     @MethodSource("provideParamsForFilters")
     void filterLogs(String filterField, String filterValue, int expectedCount) {
         Params params = new Params();
-        params.path("src/test/resources/datedLogs");
+        params.path("src/test/resources/datedLogs.txt");
         params.filterField(filterField);
         params.filterValue(filterValue);
 
         Analyzer analyzer = new AnalyzerFactory(params).getAnalyzer();
-        var logs = parser.parse("src/test/resources/datedLogs");
+        var logs = parser.parse("src/test/resources/datedLogs.txt");
         LogReport report = analyzer.analyze(logs, "src/test/resources/logs1");
 
         System.out.println(report);

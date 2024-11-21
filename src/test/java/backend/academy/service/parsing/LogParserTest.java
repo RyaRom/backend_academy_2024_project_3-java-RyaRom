@@ -7,12 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class LogParserTest {
-    private final LogParser parser = new LocalFileLogParser();
+    private final LogParser parser = new LocalFileLogParser(new GlobParser());
 
     @Test
     void parse() {
@@ -39,6 +41,26 @@ class LogParserTest {
         assertNotNull(logs);
         assertEquals(4, logs.size());
         assertThat(logs).containsExactlyInAnyOrderElementsOf(correct);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "src\\test\\resources\\datedLogs.txt, 1",
+        "src\\test\\resources\\logs1\\log3.txt, 1",
+        "src\\test\\resources\\logs1\\*.txt, 1",
+        "src\\test\\resources\\logs1\\logs2\\*.txt, 2",
+        "src/test/resources/logs1/logs2/log*.txt, 2",
+        "src\\test\\resources\\logs1\\logs2\\**\\*.txt, 3",
+        "src\\test\\resources\\logs1\\logs2\\**\\*.{txt}, 3",
+        ".\\src\\test\\resources\\logs1\\**\\*.txt, 4",
+        "src\\test\\resources\\logs1\\logs2\\logs3\\*.txt, 1",
+        ".\\src\\test\\resources\\logs1\\**\\log?.txt, 4",
+        ".\\src\\test\\resources\\logs1\\**\\log???.txt, 0",
+    })
+    void wildcardPath(String path, int expectedSize) {
+        var globPathFiles = new GlobParser().getNormalPaths(path);
+        System.out.println(globPathFiles);
+        assertEquals(expectedSize, globPathFiles.size());
     }
 
     @Test
