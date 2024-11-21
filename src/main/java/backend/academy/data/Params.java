@@ -13,10 +13,10 @@ public final class Params {
     @Parameter(required = true, names = {"--path", "-p"}, description = "The path to the input file or directory.")
     private String path;
 
-    @Parameter(names = {"--from"}, description = "The start date for filtering logs (format: yyyy-MM-dd).")
+    @Parameter(names = {"--from"}, description = "The start date for filtering logs (format: dd/MMM/yyyy:HH:mm:ss Z or yyyy-MM-dd).")
     private String from;
 
-    @Parameter(names = {"--to"}, description = "The end date for filtering logs (format: yyyy-MM-dd).")
+    @Parameter(names = {"--to"}, description = "The end date for filtering logs (format: dd/MMM/yyyy:HH:mm:ss Z or yyyy-MM-dd).")
     private String to;
 
     @Parameter(names = {"--format", "-f"}, description = "The output format (default: markdown).")

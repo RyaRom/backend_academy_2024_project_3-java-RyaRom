@@ -5,7 +5,6 @@ import backend.academy.data.LogReport;
 import backend.academy.service.parsing.GlobParser;
 import java.net.URI;
 import java.nio.file.Files;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,9 +23,9 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 @RequiredArgsConstructor
 public class DefaultAnalyzer implements Analyzer {
-    private final LocalDateTime startingDate;
+    private final OffsetDateTime startingDate;
 
-    private final LocalDateTime endDate;
+    private final OffsetDateTime endDate;
 
     private final Predicate<LogInstance> filter;
 
@@ -64,8 +63,8 @@ public class DefaultAnalyzer implements Analyzer {
 
     private boolean logIsInRequirements(LogInstance line) {
         return filter.test(line)
-            && line.timeLocal().isAfter(OffsetDateTime.from(startingDate))
-            && line.timeLocal().isBefore(OffsetDateTime.from(endDate));
+            && (line.timeLocal().isAfter(startingDate) || line.timeLocal().isEqual(startingDate))
+            && (line.timeLocal().isBefore(endDate) || line.timeLocal().isEqual(endDate));
     }
 
     private LogReport buildReport(LogAnalysisResult result, List<String> fileNames) {

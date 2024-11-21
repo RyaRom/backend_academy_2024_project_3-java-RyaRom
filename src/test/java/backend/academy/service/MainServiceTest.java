@@ -30,7 +30,7 @@ class MainServiceTest {
                 "-p",
                 "https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/nginx_logs/nginx_logs",
                 "--from",
-                "2010-08-31",
+                "21/Nov/2010:15:42:23 +0000",
                 "--to",
                 "2025-08-31",
                 "-f",

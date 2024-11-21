@@ -1,6 +1,6 @@
 package backend.academy.data;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map.Entry;
 import lombok.Builder;
@@ -9,9 +9,9 @@ import lombok.Builder;
 @SuppressWarnings("RecordComponentNumber")
 public record LogReport(
 
-    LocalDateTime startingDate,
+    OffsetDateTime startingDate,
 
-    LocalDateTime endDate,
+    OffsetDateTime endDate,
 
     Long requestCount,
 

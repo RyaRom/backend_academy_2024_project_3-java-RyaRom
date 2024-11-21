@@ -2,6 +2,7 @@ package backend.academy.service.parsing;
 
 import backend.academy.data.LogInstance;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -27,7 +28,7 @@ public class LocalFileLogParser implements LogParser {
     private Stream<LogInstance> parseFile(String fileName) {
         return Stream.of(fileName).flatMap(path -> {
             try {
-                return Files.lines(Path.of(path))
+                return Files.lines(Path.of(path), StandardCharsets.UTF_8)
                     .parallel()
                     .map(this::mapFromString)
                     .filter(Objects::nonNull);

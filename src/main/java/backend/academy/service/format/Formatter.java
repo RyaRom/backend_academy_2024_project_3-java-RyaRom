@@ -4,7 +4,7 @@ import backend.academy.data.LogReport;
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.charset.Charset;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -30,10 +30,10 @@ public interface Formatter {
     default String formTable(LogReport report, String tableTemplate, String columnTemplate) {
         String startingDate = String.valueOf(report.startingDate());
         String endDate = String.valueOf(report.endDate());
-        if (startingDate.equals(String.valueOf(LocalDateTime.MIN))) {
+        if (startingDate.equals(String.valueOf(OffsetDateTime.MIN))) {
             startingDate = "-";
         }
-        if (endDate.equals(String.valueOf(LocalDateTime.MAX))) {
+        if (endDate.equals(String.valueOf(OffsetDateTime.MAX))) {
             endDate = "-";
         }
         String errorRate = String.format("%.2f", report.errorRate() * 100);
