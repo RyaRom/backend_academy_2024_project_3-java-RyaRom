@@ -17,14 +17,22 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class GlobParser {
 
+    private static List<Path> parseNormalFile(String file) {
+        try {
+            return Files.walk(Path.of(file))
+                .filter(Files::isRegularFile)
+                .toList();
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+        return null;
+    }
+
     public List<Path> getNormalPaths(String file) {
         if (!isGlob(file)) {
-            try {
-                return Files.walk(Path.of(file))
-                    .filter(Files::isRegularFile)
-                    .toList();
-            } catch (IOException e) {
-                log.error(e.getMessage());
+            List<Path> fileParsed = parseNormalFile(file);
+            if (fileParsed != null) {
+                return fileParsed;
             }
         }
 
@@ -32,6 +40,13 @@ public class GlobParser {
         String pattern = file.replace("\\", "/");
 
         int firstGlobIndex = findFirstGlobIndex(pattern);
+        if (firstGlobIndex == -1) {
+            log.error("No glob pattern found in the path: {}", pattern);
+            List<Path> fileParsed = parseNormalFile(file);
+            if (fileParsed != null) {
+                return fileParsed;
+            }
+        }
         String rootDirPath = pattern.substring(0, firstGlobIndex);
         String globPattern = "glob:" + pattern.substring(firstGlobIndex);
         Path rootDir = rootDirPath.isEmpty() ? Paths.get(".").toAbsolutePath().normalize()
