@@ -102,15 +102,16 @@ class MainServiceTest {
             ), Arguments.of(
                 (Object) new String[] {
                     "-p",
-                    "src/test/resources/[lo]*.txt",
+                    "src/test/resources",
                     "-f",
                     "markdown",
                     "-e",
-                    "UTF-16LE",
+                    "UTF-8",
                     "-o",
                     "src/main/resources",
                 }
-            ));
+            )
+        );
     }
 
     @ParameterizedTest

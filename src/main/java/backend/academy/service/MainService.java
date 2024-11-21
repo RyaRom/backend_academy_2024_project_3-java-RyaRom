@@ -81,7 +81,7 @@ public final class MainService {
         Formatter formatter = new FormatterFactory(params).getFormatter();
         Analyzer analyzer = new AnalyzerFactory(params).getAnalyzer();
 
-        Stream<LogInstance> parsed = logParser.parse(params.path());
+        Stream<Stream<LogInstance>> parsed = logParser.parse(params.path());
         LogReport report = analyzer.analyze(parsed, params.path());
         String table = formatter.getAndSaveTable(report);
 

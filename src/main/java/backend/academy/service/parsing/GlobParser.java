@@ -19,7 +19,7 @@ public class GlobParser {
 
     private static List<Path> parseNormalFile(String file) {
         try {
-            return Files.walk(Path.of(file))
+            return Files.walk(Path.of(file).normalize())
                 .filter(Files::isRegularFile)
                 .toList();
         } catch (IOException e) {

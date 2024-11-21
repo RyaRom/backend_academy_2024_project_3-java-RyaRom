@@ -12,5 +12,5 @@ public interface Analyzer {
      * @param path Path of dir where file is located (used for "files analyzed" table in report).
      * @return LogReport with info about file
      */
-    LogReport analyze(Stream<LogInstance> logs, String path);
+    LogReport analyze(Stream<Stream<LogInstance>> logs, String path);
 }

@@ -18,7 +18,7 @@ public interface LogParser {
      * @param fileName The name of the log file to parse
      * @return A stream of LogInstance objects
      */
-    Stream<LogInstance> parse(String fileName);
+    Stream<Stream<LogInstance>> parse(String fileName);
 
     /**
      * Parses a log line into a LogInstance object.

@@ -21,6 +21,7 @@ import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import static backend.academy.service.MainService.CONSOLE_WRITER;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -123,7 +124,7 @@ public class DefaultAnalyzer implements Analyzer {
     }
 
     @Override
-    public LogReport analyze(Stream<LogInstance> logs, String path) {
+    public LogReport analyze(Stream<Stream<LogInstance>> logs, String path) {
         List<String> fileNames;
         if (isURL(path)) {
             fileNames = List.of(path);
@@ -133,12 +134,15 @@ public class DefaultAnalyzer implements Analyzer {
 
         LogAnalysisResult result = new LogAnalysisResult();
 
-        try {
-            result = processLogs(logs);
-        } catch (UncheckedIOException e) {
-            log.error("Error while parsing file {}", path, e);
-            throw new IllegalStateException("Error with file encoding. Encoding must be " + encoding);
-        }
+        logs.forEach(stream -> {
+            try {
+                LogAnalysisResult newRes = processLogs(stream);
+                result.merge(newRes);
+            } catch (UncheckedIOException e) {
+                log.error("Error while parsing file {}", path, e);
+                CONSOLE_WRITER.println("Error with file encoding. Encoding must be " + encoding);
+            }
+        });
 
         return buildReport(result, fileNames);
     }
@@ -210,5 +214,17 @@ public class DefaultAnalyzer implements Analyzer {
         private final Map<String, Long> uniqueIpAddresses = new ConcurrentHashMap<>();
 
         private final Map<String, Long> uniqueUserAgents = new ConcurrentHashMap<>();
+
+        public void merge(LogAnalysisResult another) {
+            count.set(count.get() + another.count.get());
+            error.set(error.get() + another.error.get());
+            byteSum.set(byteSum.get() + another.byteSum.get());
+            bytes.addAll(another.bytes);
+            resources.putAll(another.resources);
+            responseCodes.putAll(another.responseCodes);
+            requestMethods.putAll(another.requestMethods);
+            uniqueIpAddresses.putAll(another.uniqueIpAddresses);
+            uniqueUserAgents.putAll(another.uniqueUserAgents);
+        }
     }
 }

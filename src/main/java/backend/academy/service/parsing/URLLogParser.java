@@ -13,12 +13,12 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class URLLogParser implements LogParser {
     @Override
-    public Stream<LogInstance> parse(String fileName) {
+    public Stream<Stream<LogInstance>> parse(String fileName) {
         try {
             URL url = new URI(fileName).toURL();
             BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
 
-            return reader.lines()
+            return Stream.of(reader.lines()
                 .parallel()
                 .map(this::mapFromString)
                 .filter(Objects::nonNull)
@@ -28,7 +28,7 @@ public class URLLogParser implements LogParser {
                     } catch (IOException e) {
                         log.error("Error closing the BufferedReader for URL {}", url, e);
                     }
-                });
+                }));
         } catch (Exception e) {
             log.error("Error while reading URL {}", e.getMessage());
             return Stream.empty();

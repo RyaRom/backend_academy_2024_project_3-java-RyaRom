@@ -18,8 +18,9 @@ class LogParserTest {
 
     @Test
     void parse() {
-        List<LogInstance> logs = new URLLogParser().parse(
+        var logs = new URLLogParser().parse(
                 "https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/nginx_logs/nginx_logs")
+            .flatMap(s -> s)
             .toList();
         assertNotNull(logs);
         assertEquals(51462, logs.size());
@@ -27,7 +28,7 @@ class LogParserTest {
 
     @Test
     void parseDir() {
-        List<LogInstance> logs = new ArrayList<>(parser.parse("src/test/resources/logs1").toList());
+        var logs = new ArrayList<>(parser.parse("src/test/resources/logs1").flatMap(s-> s).toList());
         List<LogInstance> correct = new ArrayList<>(List.of(
             Objects.requireNonNull(parser.mapFromString(
                 "93.180.71.3 - - [17/May/2015:08:05:32 +0000] \"GET /downloads/product_1 HTTP/1.1\" 304 0 \"-\" \"Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)\"")),

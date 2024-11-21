@@ -19,12 +19,12 @@ public class LocalFileLogParser implements LogParser {
     private final Charset encoding;
 
     @Override
-    public Stream<LogInstance> parse(String fileName) {
+    public Stream<Stream<LogInstance>> parse(String fileName) {
         List<Path> paths = globParser.getNormalPaths(fileName);
         return paths.stream()
             .parallel()
             .filter(Files::isRegularFile)
-            .flatMap(path -> parseFile(path.toString()));
+            .map(path -> parseFile(path.toString()));
     }
 
     private Stream<LogInstance> parseFile(String fileName) {

@@ -22,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class DefaultAnalyzerTest {
-    private final Stream<LogInstance> bigFileStream = Instancio.ofList(LogInstance.class)
+    private final Stream<Stream<LogInstance>> bigFileStream = Stream.of(Instancio.ofList(LogInstance.class)
         .size(100000)
         .create()
-        .stream();
+        .stream());
 
     private final LogParser parser = new LocalFileLogParser(new GlobParser(), StandardCharsets.UTF_8);
 
