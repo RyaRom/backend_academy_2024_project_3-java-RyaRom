@@ -28,8 +28,6 @@ import lombok.RequiredArgsConstructor;
 public final class MainService {
     public static final PrintStream CONSOLE_WRITER = System.out;
 
-    public static final PrintStream CONSOLE_ERR = System.err;
-
     public static final DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder()
         .appendPattern("[dd/MMM/yyyy:HH:mm:ss Z][yyyy-MM-dd]")
         .toFormatter(Locale.ENGLISH);
@@ -57,7 +55,7 @@ public final class MainService {
     @SuppressWarnings("MagicNumber")
     private static void printResult(LocalTime start, LocalTime end, Params params, String table) {
         String difference = String.format("%.2f", 1.0 * Duration.between(start, end).toMillis() / 1000);
-        String path = (params.out().isBlank() ? "(no path specified)" : params.out());
+        String path = (params.out() == null ? "(no path specified)" : params.out());
 
         CONSOLE_WRITER.println("File created in path " + path);
         CONSOLE_WRITER.println("For " + difference + " seconds");

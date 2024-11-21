@@ -21,7 +21,6 @@ import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import static backend.academy.service.MainService.CONSOLE_ERR;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -138,7 +137,7 @@ public class DefaultAnalyzer implements Analyzer {
             result = processLogs(logs);
         } catch (UncheckedIOException e) {
             log.error("Error while parsing file {}", path, e);
-            CONSOLE_ERR.println("Error with file encoding. Encoding must be " + encoding);
+            throw new IllegalStateException("Error with file encoding. Encoding must be " + encoding);
         }
 
         return buildReport(result, fileNames);
