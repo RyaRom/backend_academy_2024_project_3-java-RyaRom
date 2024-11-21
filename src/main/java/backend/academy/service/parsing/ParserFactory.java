@@ -21,7 +21,7 @@ public class ParserFactory {
         if (isLocalFile(path)) {
             return new LocalFileLogParser(globParser, Charset.forName(params.encoding()));
         }
-        throw new IllegalArgumentException("Unsupported path: " + path + ". This probably doesn't exist");
+        throw new IllegalArgumentException("Unsupported path: " + path + ". This path probably doesn't exist");
     }
 
     private boolean isURL(String path) {
