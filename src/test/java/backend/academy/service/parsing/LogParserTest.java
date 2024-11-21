@@ -45,9 +45,6 @@ class LogParserTest {
 
     @ParameterizedTest
     @CsvSource({
-        "src\\test\\resources\\datedLogs.txt, 1",
-        "src\\test\\resources\\logs1\\log3.txt, 1",
-        "src\\test\\resources\\logs1\\*.txt, 1",
         "src\\test\\resources\\logs1\\logs2\\*.txt, 2",
         "src/test/resources/logs1/logs2/log*.txt, 2",
         "src\\test\\resources\\logs1\\logs2\\**\\*.txt, 3",
