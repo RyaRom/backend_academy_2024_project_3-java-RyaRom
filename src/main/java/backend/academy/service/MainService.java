@@ -17,16 +17,21 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public final class MainService {
 
-    public final static PrintStream CONSOLE_WRITER = System.out;
+    public static final PrintStream CONSOLE_WRITER = System.out;
 
     private final String[] args;
 
     public void run() {
         Params params = new Params();
-        JCommander.newBuilder()
+        JCommander jc = JCommander.newBuilder()
             .addObject(params)
-            .build()
-            .parse(args);
+            .build();
+
+        jc.parse(args);
+        if (params.help()) {
+            jc.usage();
+            return;
+        }
 
         LogParser logParser = new ParserFactory(params).getParser();
         Formatter formatter = new FormatterFactory(params).getFormatter();

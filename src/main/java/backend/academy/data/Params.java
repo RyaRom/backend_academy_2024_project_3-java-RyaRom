@@ -10,22 +10,22 @@ import lombok.ToString;
 @Setter
 @SuppressWarnings("LineLength")
 public final class Params {
-    @Parameter(required = true, names = {"--path", "-p"})
+    @Parameter(required = true, names = {"--path", "-p"}, description = "The path to the input file or directory.")
     private String path;
 
-    @Parameter(names = {"--from"})
+    @Parameter(names = {"--from"}, description = "The start date for filtering logs (format: yyyy-MM-dd).")
     private String from;
 
-    @Parameter(names = {"--to"})
+    @Parameter(names = {"--to"}, description = "The end date for filtering logs (format: yyyy-MM-dd).")
     private String to;
 
-    @Parameter(names = {"--format", "-f"})
-    private String format = "adoc";
+    @Parameter(names = {"--format", "-f"}, description = "The output format (default: markdown).")
+    private String format = "markdown";
 
     /**
      * A path where report doc will be saved
      */
-    @Parameter(names = {"--out", "-o"})
+    @Parameter(names = {"--out", "-o"}, description = "The output path where the generated report will be saved.")
     private String out;
 
     /**
@@ -45,12 +45,16 @@ public final class Params {
      *     <li><b>http_user_agent</b>: Filters by the HTTP user agent is containing the {@code --filter-value} .</li>
      * </ul>
      */
-    @Parameter(names = {"--filter-field"})
+    @Parameter(names = {
+        "--filter-field"}, description = "The log entry field to filter by. See below for supported fields.")
     private String filterField;
 
     /**
      * A value to filter by
      */
-    @Parameter(names = {"--filter-value"})
+    @Parameter(names = {"--filter-value"}, description = "The value to filter the specified field by.")
     private String filterValue;
+
+    @Parameter(names = {"--help", "-h"}, help = true, description = "Displays this help message.")
+    private boolean help;
 }
