@@ -10,13 +10,16 @@ import lombok.ToString;
 @Setter
 @SuppressWarnings("LineLength")
 public final class Params {
-    @Parameter(required = true, names = {"--path", "-p"}, description = "The path to the input file or directory.")
+    @Parameter(required = true, names = {"--path",
+        "-p"}, description = "The path to the input file or directory. All files must be in UTF-8")
     private String path;
 
-    @Parameter(names = {"--from"}, description = "The start date for filtering logs (format: dd/MMM/yyyy:HH:mm:ss Z or yyyy-MM-dd).")
+    @Parameter(names = {
+        "--from"}, description = "The start date for filtering logs (format: dd/MMM/yyyy:HH:mm:ss Z or yyyy-MM-dd).")
     private String from;
 
-    @Parameter(names = {"--to"}, description = "The end date for filtering logs (format: dd/MMM/yyyy:HH:mm:ss Z or yyyy-MM-dd).")
+    @Parameter(names = {
+        "--to"}, description = "The end date for filtering logs (format: dd/MMM/yyyy:HH:mm:ss Z or yyyy-MM-dd).")
     private String to;
 
     @Parameter(names = {"--format", "-f"}, description = "The output format (default: markdown).")
@@ -57,4 +60,7 @@ public final class Params {
 
     @Parameter(names = {"--help", "-h"}, help = true, description = "Displays this help message.")
     private boolean help;
+
+    @Parameter(names = {"--encoding", "-e"}, description = "The encoding of the input file (default: UTF-8).")
+    private String encoding = "UTF-8";
 }

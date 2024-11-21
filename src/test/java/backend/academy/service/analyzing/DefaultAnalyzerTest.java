@@ -6,6 +6,7 @@ import backend.academy.data.Params;
 import backend.academy.service.parsing.GlobParser;
 import backend.academy.service.parsing.LocalFileLogParser;
 import backend.academy.service.parsing.LogParser;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -26,7 +27,7 @@ class DefaultAnalyzerTest {
         .create()
         .stream();
 
-    private final LogParser parser = new LocalFileLogParser(new GlobParser());
+    private final LogParser parser = new LocalFileLogParser(new GlobParser(), StandardCharsets.UTF_8);
 
     private static Stream<Arguments> provideParamsForFilters() {
         return Stream.of(
@@ -45,10 +46,10 @@ class DefaultAnalyzerTest {
 
     @Test
     void analyzeBigRandomFile() {
-        Analyzer analyzer = new DefaultAnalyzer(MIN, MAX, _ -> true);
+        Analyzer analyzer = new DefaultAnalyzer(MIN, MAX, _ -> true, StandardCharsets.UTF_8);
         LogReport report = analyzer.analyze(bigFileStream, "");
         assertNotNull(report);
-        assertEquals( 100000,report.requestCount());
+        assertEquals(100000, report.requestCount());
     }
 
     @Test
@@ -56,7 +57,8 @@ class DefaultAnalyzerTest {
         Analyzer analyzer = new DefaultAnalyzer(
             OffsetDateTime.of(LocalDateTime.of(2015, 5, 18, 0, 0, 0), ZoneOffset.ofTotalSeconds(0)),
             OffsetDateTime.of(LocalDateTime.of(2015, 5, 20, 0, 0, 0), ZoneOffset.ofTotalSeconds(0)),
-            _ -> true
+            _ -> true,
+            StandardCharsets.UTF_8
         );
         var logs = parser.parse("src/test/resources/datedLogs.txt");
         LogReport report = analyzer.analyze(logs, "src/test/resources/logs1");

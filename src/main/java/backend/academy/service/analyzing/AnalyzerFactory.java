@@ -2,6 +2,7 @@ package backend.academy.service.analyzing;
 
 import backend.academy.data.LogInstance;
 import backend.academy.data.Params;
+import java.nio.charset.Charset;
 import java.time.OffsetDateTime;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class AnalyzerFactory {
         var end = params.to() == null ? OffsetDateTime.MAX : parseDateTime(params.to());
         if (value == null || field == null) {
             log.warn("Filter value is null. Default analyzer will be used");
-            return new DefaultAnalyzer(start, end, instance -> true);
+            return new DefaultAnalyzer(start, end, instance -> true, Charset.forName(params.encoding()));
         }
 
         Predicate<LogInstance> filter = switch (field) {
@@ -44,6 +45,6 @@ public class AnalyzerFactory {
 
             default -> instance -> true;
         };
-        return new DefaultAnalyzer(start, end, filter);
+        return new DefaultAnalyzer(start, end, filter, Charset.forName(params.encoding()));
     }
 }

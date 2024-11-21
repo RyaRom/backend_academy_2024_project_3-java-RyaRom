@@ -99,6 +99,17 @@ class MainServiceTest {
                     "80.91.33.133",
                     "-o",
                     "src/main/resources"}
+            ), Arguments.of(
+                (Object) new String[] {
+                    "-p",
+                    "src/test/resources/[lo]*.txt",
+                    "-f",
+                    "markdown",
+                    "-e",
+                    "UTF-16LE",
+                    "-o",
+                    "src/main/resources",
+                }
             ));
     }
 

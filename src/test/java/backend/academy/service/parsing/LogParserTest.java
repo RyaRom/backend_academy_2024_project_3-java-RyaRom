@@ -1,20 +1,20 @@
 package backend.academy.service.parsing;
 
 import backend.academy.data.LogInstance;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatterBuilder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import static backend.academy.service.MainService.parseDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class LogParserTest {
-    private final LogParser parser = new LocalFileLogParser(new GlobParser());
+    private final LogParser parser = new LocalFileLogParser(new GlobParser(), StandardCharsets.UTF_8);
 
     @Test
     void parse() {
@@ -68,16 +68,13 @@ class LogParserTest {
         String example =
             "93.180.71.3 - - [17/May/2015:08:05:32 +0000] \"GET /downloads/product_1 HTTP/1.1\" 304 0 \"-\" \"Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)\"";
         LogInstance instance = parser.mapFromString(example);
-        assertEquals(instance.remoteAddress(), "93.180.71.3");
-        assertEquals(instance.remoteUser(), "-");
-        assertEquals(instance.timeLocal(),
-            LocalDateTime.parse("17/May/2015:08:05:32 +0000", new DateTimeFormatterBuilder()
-                .appendPattern("dd/MMM/yyyy:HH:mm:ss Z")
-                .toFormatter()));
-        assertEquals(instance.request(), "GET /downloads/product_1 HTTP/1.1");
-        assertEquals(instance.status(), "304");
-        assertEquals(instance.bodyBitesSent(), 0L);
-        assertEquals(instance.httpRefer(), "-");
-        assertEquals(instance.httpUserAgent(), "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)");
+        assertEquals("93.180.71.3", instance.remoteAddress());
+        assertEquals("-", instance.remoteUser());
+        assertEquals(parseDateTime("17/May/2015:08:05:32 +0000"), instance.timeLocal());
+        assertEquals("GET /downloads/product_1 HTTP/1.1", instance.request());
+        assertEquals("304", instance.status());
+        assertEquals(0L, instance.bodyBitesSent());
+        assertEquals("-", instance.httpRefer());
+        assertEquals("Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)", instance.httpUserAgent());
     }
 }

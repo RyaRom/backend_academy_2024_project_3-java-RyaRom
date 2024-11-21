@@ -3,7 +3,9 @@ package backend.academy.service.analyzing;
 import backend.academy.data.LogInstance;
 import backend.academy.data.LogReport;
 import backend.academy.service.parsing.GlobParser;
+import java.io.UncheckedIOException;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.time.OffsetDateTime;
 import java.util.Collections;
@@ -19,6 +21,7 @@ import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import static backend.academy.service.MainService.CONSOLE_ERR;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -28,6 +31,8 @@ public class DefaultAnalyzer implements Analyzer {
     private final OffsetDateTime endDate;
 
     private final Predicate<LogInstance> filter;
+
+    private final Charset encoding;
 
     private final Comparator<Entry<String, Long>> comparatorForPairs =
         Comparator.comparingLong(
@@ -127,7 +132,15 @@ public class DefaultAnalyzer implements Analyzer {
             fileNames = getFileNames(path);
         }
 
-        LogAnalysisResult result = processLogs(logs);
+        LogAnalysisResult result = new LogAnalysisResult();
+
+        try {
+            result = processLogs(logs);
+        } catch (UncheckedIOException e) {
+            log.error("Error while parsing file {}", path, e);
+            CONSOLE_ERR.println("Error with file encoding. Encoding must be " + encoding);
+        }
+
         return buildReport(result, fileNames);
     }
 

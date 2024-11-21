@@ -1,20 +1,15 @@
 package backend.academy.service.parsing;
 
 import backend.academy.data.LogInstance;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
-import static backend.academy.service.MainService.FORMATTER;
 import static backend.academy.service.MainService.parseDateTime;
 
 public interface LogParser {
     String REGEX = "^(\\S+) - (\\S+) \\[(.+?)] \"(.+?)\" (\\d{3}) (\\d+) \"(.*?)\" \"(.*?)\"";
+
     Pattern PATTERN = Pattern.compile(REGEX);
 
     /**

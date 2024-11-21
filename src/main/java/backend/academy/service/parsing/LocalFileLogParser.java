@@ -2,7 +2,7 @@ package backend.academy.service.parsing;
 
 import backend.academy.data.LogInstance;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -16,6 +16,8 @@ import lombok.extern.log4j.Log4j2;
 public class LocalFileLogParser implements LogParser {
     private final GlobParser globParser;
 
+    private final Charset encoding;
+
     @Override
     public Stream<LogInstance> parse(String fileName) {
         List<Path> paths = globParser.getNormalPaths(fileName);
@@ -28,12 +30,11 @@ public class LocalFileLogParser implements LogParser {
     private Stream<LogInstance> parseFile(String fileName) {
         return Stream.of(fileName).flatMap(path -> {
             try {
-                return Files.lines(Path.of(path), StandardCharsets.UTF_8)
+                return Files.lines(Path.of(path), encoding)
                     .parallel()
                     .map(this::mapFromString)
                     .filter(Objects::nonNull);
             } catch (IOException e) {
-                log.error("Error while reading file {}", fileName, e);
                 return Stream.empty();
             }
         });

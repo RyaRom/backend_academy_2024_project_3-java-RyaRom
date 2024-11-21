@@ -17,10 +17,10 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class GlobParser {
 
-    public List<Path> getNormalPaths(String pattern) {
-        if (!isGlob(pattern)) {
+    public List<Path> getNormalPaths(String file) {
+        if (!isGlob(file)) {
             try {
-                return Files.walk(Path.of(pattern))
+                return Files.walk(Path.of(file))
                     .filter(Files::isRegularFile)
                     .toList();
             } catch (IOException e) {
@@ -29,15 +29,13 @@ public class GlobParser {
         }
 
         List<Path> matchingFiles = new ArrayList<>();
-        pattern = pattern.replace("\\", "/");
+        String pattern = file.replace("\\", "/");
 
-        // Extract root directory and glob pattern
         int firstGlobIndex = findFirstGlobIndex(pattern);
         String rootDirPath = pattern.substring(0, firstGlobIndex);
         String globPattern = "glob:" + pattern.substring(firstGlobIndex);
-
-        Path rootDir = rootDirPath.isEmpty() ? Paths.get(".").toAbsolutePath().normalize() :
-            Paths.get(rootDirPath).toAbsolutePath().normalize();
+        Path rootDir = rootDirPath.isEmpty() ? Paths.get(".").toAbsolutePath().normalize()
+            : Paths.get(rootDirPath).toAbsolutePath().normalize();
 
         log.info("Root Directory: {}", rootDir);
         log.info("Glob Pattern: {}", globPattern);
@@ -72,8 +70,13 @@ public class GlobParser {
         if (path.contains("https://") || path.contains("http://")) {
             return false;
         }
-        return path.contains("*") || path.contains("?") || path.contains("{") || path.contains("}") ||
-            path.contains("[") || path.contains("]") || path.contains("**");
+        return path.contains("*")
+            || path.contains("?")
+            || path.contains("{")
+            || path.contains("}")
+            || path.contains("[")
+            || path.contains("]")
+            || path.contains("**");
     }
 
     private int findFirstGlobIndex(String pattern) {

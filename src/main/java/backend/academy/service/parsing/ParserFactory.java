@@ -2,6 +2,7 @@ package backend.academy.service.parsing;
 
 import backend.academy.data.Params;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ParserFactory {
     private final GlobParser globParser = new GlobParser();
+
     private final Params params;
 
     public LogParser getParser() {
@@ -17,7 +19,7 @@ public class ParserFactory {
             return new URLLogParser();
         }
         if (isLocalFile(path)) {
-            return new LocalFileLogParser(globParser);
+            return new LocalFileLogParser(globParser, Charset.forName(params.encoding()));
         }
         throw new IllegalArgumentException("Unsupported path: " + path);
     }
