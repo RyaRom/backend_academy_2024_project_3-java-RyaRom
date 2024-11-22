@@ -39,14 +39,12 @@ public class DefaultAnalyzer implements Analyzer {
             (Entry<String, Long> entry) -> entry.getValue()
         ).reversed();
 
-    private LogAnalysisResult processLogs(Stream<LogInstance> logs) {
-        LogAnalysisResult result = new LogAnalysisResult();
+    private void processLogs(Stream<LogInstance> logs, LogAnalysisResult result) {
         logs.parallel().forEach(line -> {
             if (logIsInRequirements(line)) {
                 processLogInstance(line, result);
             }
         });
-        return result;
     }
 
     private void processLogInstance(LogInstance line, LogAnalysisResult result) {
@@ -136,8 +134,7 @@ public class DefaultAnalyzer implements Analyzer {
 
         logs.forEach(stream -> {
             try {
-                LogAnalysisResult newRes = processLogs(stream);
-                result.merge(newRes);
+                processLogs(stream, result);
             } catch (UncheckedIOException e) {
                 log.error("Error while parsing file {}", path, e);
                 CONSOLE_WRITER.println("Error while file reading. Encoding must be " + encoding);
@@ -214,17 +211,5 @@ public class DefaultAnalyzer implements Analyzer {
         private final Map<String, Long> uniqueIpAddresses = new ConcurrentHashMap<>();
 
         private final Map<String, Long> uniqueUserAgents = new ConcurrentHashMap<>();
-
-        public void merge(LogAnalysisResult another) {
-            count.set(count.get() + another.count.get());
-            error.set(error.get() + another.error.get());
-            byteSum.set(byteSum.get() + another.byteSum.get());
-            bytes.addAll(another.bytes);
-            resources.putAll(another.resources);
-            responseCodes.putAll(another.responseCodes);
-            requestMethods.putAll(another.requestMethods);
-            uniqueIpAddresses.putAll(another.uniqueIpAddresses);
-            uniqueUserAgents.putAll(another.uniqueUserAgents);
-        }
     }
 }

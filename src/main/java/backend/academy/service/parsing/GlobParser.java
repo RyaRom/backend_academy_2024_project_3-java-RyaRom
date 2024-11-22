@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
 
@@ -25,28 +26,18 @@ public class GlobParser {
         } catch (IOException e) {
             log.error(e.getMessage());
         }
-        return null;
+        return Collections.emptyList();
     }
 
     public List<Path> getNormalPaths(String file) {
         if (!isGlob(file)) {
-            List<Path> fileParsed = parseNormalFile(file);
-            if (fileParsed != null) {
-                return fileParsed;
-            }
+            return parseNormalFile(file);
         }
 
         List<Path> matchingFiles = new ArrayList<>();
         String pattern = file.replace("\\", "/");
 
         int firstGlobIndex = findFirstGlobIndex(pattern);
-        if (firstGlobIndex < 0) {
-            log.error("No glob pattern found in the path: {}", pattern);
-            List<Path> fileParsed = parseNormalFile(file);
-            if (fileParsed != null) {
-                return fileParsed;
-            }
-        }
         String rootDirPath = pattern.substring(0, firstGlobIndex);
         String globPattern = "glob:" + pattern.substring(firstGlobIndex);
         Path rootDir = rootDirPath.isEmpty() ? Paths.get(".").toAbsolutePath().normalize()
